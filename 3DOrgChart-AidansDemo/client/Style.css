@@ -1,0 +1,186 @@
+:root {
+	--background-color: #FAEEE7;
+	--stroke-color: #000000;
+	--highlight: #FF8BA7;
+	--secondary-color: #FFC6C7;
+	--tertiary-color: #C3F0CA;
+}
+
+body {
+	background-color: var(--background-color);
+	margin: 0px;
+	overflow: hidden;
+}
+
+#container {
+	position: relative;
+}
+#container canvas, #overlay {
+	position: absolute;
+}
+#overlay {
+	top: 0px;
+	left: 0px;
+	overflow: hidden;
+	margin: 0px;
+	perspective: 400px;
+	perspective-origin: center;
+	/*box-shadow: 10px 10px 5px #555549;*/
+}
+
+#rightpanel {
+	position: absolute;
+	right: -8px;
+	top: 8px;
+	height: calc(100vh - 40px);
+	width: calc(20vw - 40px);
+	padding: 8px;
+}
+#panel {
+	width: calc(100%);
+	padding: 8px;
+}
+table, th, td {
+	border: var(--stroke-color) 1px solid;
+	text-align: left;
+	padding: 2px;
+}
+table {
+	border-collapse: collapse;
+}
+th, td {
+	height: 24px;
+	width: 20vh;
+}
+td {
+	color: var(--highlight);
+}
+
+input.cardInput {
+	color: inherit;
+	border: none;
+	background-color: inherit;
+}
+input.cardInput:hover {
+	background-color: var(--secondary-color);
+}
+input.cardInput:focus{
+	outline: none;
+	background-color: var(--secondary-color);
+}
+
+button {
+	background-color: inherit;
+	border: var(--stroke-color) 1px solid;
+	outline: none;
+	cursor: pointer;
+	padding: 6px 8px;
+	transition: 0.3s;
+}
+button:hover {
+	background-color: var(--secondary-color);
+}
+button:active {
+		background-color: var(--highlight);
+}
+
+.controlbtn {
+	background-color: inherit;
+	border: var(--stroke-color) 1px solid;
+	padding: 6px 8px;
+}
+.controlbtn#centerbtn {
+	position: absolute;
+	bottom: 16px;
+	right: 16px;
+}
+.controlbtn:hover {
+	background-color: var(--secondary-color);
+}
+.controlbtn:active {
+		background-color: var(--highlight);
+}
+
+.tab {
+	overflow: hidden;
+	border: var(--stroke-color) 1px solid;
+	width: calc(100% - 6px);
+}
+.tab button {
+	background-color: inherit;
+	float: left;
+	border: none;
+	outline: none;
+	cursor: pointer;
+	padding: 6px 8px;
+	transition: 0.3s;
+}
+.tab button:hover {
+	background-color: var(--secondary-color);
+}
+.tab button.active {
+	background-color: var(--highlight);
+}
+.tabcontent {
+	display: none;
+	padding: 8px 0px;
+	/*border: 1px solid var(--stroke-color);
+	border-top: none;*/
+}
+
+.outlined {
+	border: var(--stroke-color) solid 4px;
+	border-radius: 8px;
+}
+.shadow {
+	box-shadow: 2px 2px 5px #555549;
+}
+
+.card {
+	position: absolute;
+	transform-origin: center;
+	display: flex;
+	padding: 0px;
+
+	align-items: center;
+	justify-content: center;
+	border-radius: 2px;
+
+	background-color: var(--background-color);
+	opacity: 0.6;
+	font-size: 2.5px;
+
+	-webkit-transform: translate3d(-50%, -50%, 0);
+	-moz-transform: translate3d(-50%, -50%, 0);
+	transform: translate3d(-50%, -50%, 0);
+
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+}
+.card:hover {
+	opacity: 1;
+	border: var(--highlight) dashed 2px !important;
+}
+.card.selected {
+	opacity: 1;
+	border: var(--highlight) solid 2px !important;
+	color: var(--highlight);
+}
+
+.light-mode {
+	background-color: var(--background-color);
+	color: var(--stroke-color);
+}
+.card.light-mode {
+	border: var(--stroke-color) solid 1px;
+}
+.card.dark-mode {
+	background-color: White;
+}
+.dark-mode {
+	background-color: #777B7E;
+	color: white;
+}

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Org Chart</title>
+		<link rel="stylesheet" href="client/Style.css">
+	</head>
+	<body>
+		<div id="container">
+			<canvas id="canvas" class="outlined"></canvas>
+			<div id="overlay" class="outlined shadow">
+				<button id="centerbtn" class="controlbtn" onclick="moveCamera()">Center</button>
+			</div>
+		</div>
+		<div id="rightpanel" class="outlined shadow">
+			<div class="tab">
+				<button class="tablinks" onclick="openTab(event, 'details')">Details</button>
+				<button class="tablinks" onclick="openTab(event, 'data')">Data</button>
+			</div>
+
+			<div id="details" class="tabcontent">
+			</div>
+
+			<div id="data" class="tabcontent">
+				<div id="panel" class="outlined" style="visibility: visible;">
+					<div id="cardInfoTable">
+						<table>
+							<tr>
+								<th>Card Number</th>
+							</tr>
+							<tr>
+								<td></td>
+							</tr>
+							<tr>
+								<th>Title</th>
+							</tr>
+							<tr>
+								<td></td>
+							</tr>
+							<tr>
+								<th>Name</th>
+							</tr>
+							<tr>
+								<td></td>
+							</tr>
+						</table>
+					</div>
+					<br>
+					<button class="submitbtn" onclick="editCardValues()">Apply</button>
+					<button class="" onclick="">New Child</button>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script src="client/functions.js"></script>
+	<script src="client/quaternion.js"></script>
+	<script src="client/projection.js"></script>
+	<script src="client/data.js"></script>
+	<script src="client/client.js"></script>
+</html>
