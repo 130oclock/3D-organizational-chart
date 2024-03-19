@@ -1,0 +1,23 @@
+{
+  "name": "3d-organizational-chart",
+  "version": "1.0.0",
+  "description": "A 3D organizational chart web app",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/130oclock/3D-organizational-chart.git"
+  },
+  "author": "Aidan Donley, Andy He, Amr Hussein",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/130oclock/3D-organizational-chart/issues"
+  },
+  "homepage": "https://github.com/130oclock/3D-organizational-chart#readme",
+  "dependencies": {
+    "express": "^4.18.3"
+  }
+}
