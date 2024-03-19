@@ -1,7 +1,7 @@
 /**
  * This file creates the server and handles routing files to the client.
  * @author Aidan Donley
- * @version 1.0
+ * @version 1.0.0
  */
 
 var express = require('express');
@@ -17,7 +17,7 @@ app.set('port', port_);
 app.use('/client', express.static(__dirname + '/client'));
 
 // Route the default link to index.html
-app.get('/', function(request, response) {
+app.get('/', function(_request, response) {
 	response.sendFile(path.join(__dirname, '/client/index.html'));
 });
 
