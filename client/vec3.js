@@ -45,7 +45,7 @@ class Vec3 {
   /**
    * @returns the length of this Vec3
    */
-  length() {
+  getLength() {
     return Math.sqrt(dotProduct(v, v));
   }
   /**
@@ -86,5 +86,15 @@ class Vec3 {
     v.y = v1.z * v2.x - v1.x * v2.z;
     v.z = v1.x * v2.y - v1.y * v2.x;
     return v;
+  }
+  static intersectPlane(plane_p, plane_n, lineStart, lineEnd) {
+    plane_n = plane_n.clone().normalize();
+    var plane_d = Vec3.dotProduct(plane_n, plane_p);
+    var ad = Vec3.dotProduct(lineStart, plane_n);
+    var bd = Vec3.dotProduct(lineEnd, plane_n);
+    var t = (-plane_d - ad) / (bd - ad);
+    var lineStartToEnd = Vec3.subtract(lineEnd, lineStart);
+    var lineToIntersect = Vec3.multiply(lineStartToEnd, t);
+    return Vec3.add(lineStart, lineToIntersect);
   }
 }

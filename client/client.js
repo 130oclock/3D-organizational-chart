@@ -3,3 +3,6 @@
  * @author Aidan Donley, Andy He, Amr Hussein
  * @version 1.0.0
  */
+
+var body = document.body;
+

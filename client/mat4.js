@@ -1,13 +1,9 @@
 /**
  * This file contains the Mat4 class. A general representation of 4-by-4 matrices.
- * @author Aidan Donley
+ * @author Aidan Donley, Andy He, Amr Hussein
  * @version 1.0.0
  */
 
-
-function to1D(row, column) {
-  return row * 4 + column;
-}
 
 /**
  * A class representing a 4-by-4 matrix. 
@@ -29,11 +25,20 @@ class Mat4 {
   constructor(array) {
     this.data = array;
   }
-  
+  /**
+   * @returns A deep copy of this matrix
+   */
+  clone() {
+    return new Mat4([
+      this.data[0],  this.data[1],  this.data[2],  this.data[3],
+      this.data[4],  this.data[5],  this.data[6],  this.data[7],
+      this.data[8],  this.data[9],  this.data[10], this.data[11],
+      this.data[12], this.data[13], this.data[14], this.data[15] ]);
+  }
   /**
    * Turns this matrix into an identity matrix.
    */
-  identity() {
+  makeIdentity() {
     this.data = [ 1, 0, 0, 0,
                   0, 1, 0, 0,
                   0, 0, 1, 0,
@@ -101,42 +106,52 @@ class Mat4 {
         0,            0,            0,             1 ];
     this.data = inverse;
   }
-  
-  static multiplyMatrix(m1, m2) {
-    var matrix = new Mat4();
 
-    const realMatrix = [
-      [1, 2, 3, 4],
-      [5, 6, 7, 8],
-      [9, 10, 11, 12],
-      [13, 14, 15, 16]
-    ];
-
-
-    // 4x4 matrix updated multiplication
-    for (var i = 0; i < 4; ++i) {
-      for (var j = 0; j < 4; ++j) {
-        for (var k = 0; k < 4; ++k) {
-          realMatrix[i][j] = m1.data[k] * m2.data[j];
-        }
-      }
-    }
-
-    // Convert it to 1D vector
-    for (var i = 0; i < 4; ++i) {
-      for (var j = 0; j < 4; ++j) {
-        matrix[i + j] = realMatrix[i][j];
-      }
-    }
-
-    return matrix;
+  multiplyVec3(v) {
+    return new Vec3d(
+      (v.x * this.data[0]) + (v.y * this.data[4]) + (v.z * this.data[8])  + (this.data[12]),
+      (v.x * this.data[1]) + (v.y * this.data[5]) + (v.z * this.data[9])  + (this.data[13]),
+      (v.x * this.data[2]) + (v.y * this.data[6]) + (v.z * this.data[10]) + (this.data[14])
+    );
   }
 
-  static addMatrix(m1, m2) {
+  static add(m1, m2) {
     return new Mat4(
       [ m1.data[0]  + m2.data[0],  m1.data[1]  + m2.data[1],  m1.data[2]  + m2.data[2],  m1.data[3]  + m2.data[3],
         m1.data[4]  + m2.data[4],  m1.data[5]  + m2.data[5],  m1.data[6]  + m2.data[6],  m1.data[7]  + m2.data[7],
         m1.data[8]  + m2.data[8],  m1.data[9]  + m2.data[9],  m1.data[10] + m2.data[10], m1.data[11] + m2.data[11],
         m1.data[12] + m2.data[12], m1.data[13] + m2.data[13], m1.data[14] + m2.data[14], m1.data[15] + m2.data[15] ]);
+  }
+
+  /**
+   * Multiplies m1 by m2. Both m1 and m2 must be valid 4-by-4 matrices.
+   * @param {Mat4} m1 
+   * @param {Mat4} m2 
+   * @returns A new Mat4
+   */
+  static multiply(m1, m2) {
+    return new Mat4(
+      [ // row 1
+        m1.data[0]  * m2.data[0]  + m1.data[1]  * m2.data[4]  + m1.data[2]  * m2.data[8]  + m1.data[3]  * m2.data[12],
+        m1.data[0]  * m2.data[1]  + m1.data[1]  * m2.data[5]  + m1.data[2]  * m2.data[9]  + m1.data[3]  * m2.data[13],
+        m1.data[0]  * m2.data[2]  + m1.data[1]  * m2.data[6]  + m1.data[2]  * m2.data[10] + m1.data[3]  * m2.data[14],
+        m1.data[0]  * m2.data[3]  + m1.data[1]  * m2.data[7]  + m1.data[2]  * m2.data[11] + m1.data[3]  * m2.data[15],
+        // row 2
+        m1.data[4]  * m2.data[0]  + m1.data[5]  * m2.data[4]  + m1.data[6]  * m2.data[8]  + m1.data[7]  * m2.data[12],
+        m1.data[4]  * m2.data[1]  + m1.data[5]  * m2.data[5]  + m1.data[6]  * m2.data[9]  + m1.data[7]  * m2.data[13],
+        m1.data[4]  * m2.data[2]  + m1.data[5]  * m2.data[6]  + m1.data[6]  * m2.data[10] + m1.data[7]  * m2.data[14],
+        m1.data[4]  * m2.data[3]  + m1.data[5]  * m2.data[7]  + m1.data[6]  * m2.data[11] + m1.data[7]  * m2.data[15],
+        // row 3
+        m1.data[8]  * m2.data[0]  + m1.data[9]  * m2.data[4]  + m1.data[10] * m2.data[8]  + m1.data[11] * m2.data[12],
+        m1.data[8]  * m2.data[1]  + m1.data[9]  * m2.data[5]  + m1.data[10] * m2.data[9]  + m1.data[11] * m2.data[13],
+        m1.data[8]  * m2.data[2]  + m1.data[9]  * m2.data[6]  + m1.data[10] * m2.data[10] + m1.data[11] * m2.data[14],
+        m1.data[8]  * m2.data[3]  + m1.data[9]  * m2.data[7]  + m1.data[10] * m2.data[11] + m1.data[11] * m2.data[15],
+        // row 4
+        m1.data[12] * m2.data[0]  + m1.data[13] * m2.data[4]  + m1.data[14] * m2.data[8]  + m1.data[15] * m2.data[12],
+        m1.data[12] * m2.data[1]  + m1.data[13] * m2.data[5]  + m1.data[14] * m2.data[9]  + m1.data[15] * m2.data[13],
+        m1.data[12] * m2.data[2]  + m1.data[13] * m2.data[6]  + m1.data[14] * m2.data[10] + m1.data[15] * m2.data[14],
+        m1.data[12] * m2.data[3]  + m1.data[13] * m2.data[7]  + m1.data[14] * m2.data[11] + m1.data[15] * m2.data[15],
+      ]
+    )
   }
 }
