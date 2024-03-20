@@ -15,6 +15,7 @@ class Camera {
    */
   constructor(position_in) {
     this.position = position_in;
+    this.rotation = null;
   }
 }
 

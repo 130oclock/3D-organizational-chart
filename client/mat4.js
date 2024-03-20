@@ -30,6 +30,9 @@ class Mat4 {
     this.data = array;
   }
   
+  /**
+   * Turns this matrix into an identity matrix.
+   */
   identity() {
     this.data = [ 1, 0, 0, 0,
                   0, 1, 0, 0,
@@ -37,48 +40,66 @@ class Mat4 {
                   0, 0, 0, 1 ];
   }
 
-  static makeRotationX(angle) {
-    //roll
-    return new Mat4(
-      [ 1, 0, 0, 0,
-        0, Math.cos(angle), Math.sin(angle), 0,
-        0,-Math.sin(angle), Math.cos(angle), 0,
-        0, 0, 0, 1 ]);
+  makeRotationX(angle) { //roll
+    this.data = [ 1,  0,               0,               0,
+                  0,  Math.cos(angle), Math.sin(angle), 0,
+                  0, -Math.sin(angle), Math.cos(angle), 0,
+                  0,  0,               0,               1 ];
   }
 
-  static makeRotationY(angle){
-    //pitch
-    return new Mat4(
-      [ Math.cos(angle), 0, Math.sin(angle), 0,
-        0, 1, 0, 0,
-       -Math.sin(angle), 0, Math.cos(angle), 0,
-        0, 0, 0, 1 ]);
+  makeRotationY(angle){ //pitch
+    this.data = [  Math.cos(angle), 0, Math.sin(angle), 0,
+                   0,               1, 0,               0,
+                  -Math.sin(angle), 0, Math.cos(angle), 0,
+                   0,               0, 0,               1 ];
   }
 
-  static makeRotationZ(angle) {
-    //yaw
-    return new Mat4(
-      [ Math.cos(angle), Math.sin(angle), 0, 0,
-       -Math.sin(angle), Math.cos(angle), 0, 0,
-        0, 0, 1, 0,
-        0, 0, 0, 1 ]);
+  makeRotationZ(angle) { //yaw
+    this.data = [  Math.cos(angle), Math.sin(angle), 0, 0,
+                  -Math.sin(angle), Math.cos(angle), 0, 0,
+                   0,               0,               1, 0,
+                   0,               0,               0, 1 ];
   }
 
-  static makeTranslation(x, y, z) {
-    return new Mat4(
-      [ 1, 0, 0, x,
-        0, 1, 0, y,
-        0, 0, 1, z,
-        0, 0, 0, 1 ]);
+  makeTranslation(x, y, z) {
+    this.data = [ 1, 0, 0, x,
+                  0, 1, 0, y,
+                  0, 0, 1, z,
+                  0, 0, 0, 1 ];
   }
 
-  static makeProjection(FovDegrees, AspectRatio, Near, Far) {
+  makeProjection(FovDegrees, AspectRatio, Near, Far) {
     var FovRad = 1 / Math.tan(FovDegrees * 0.5 / 180 * Math.PI);
-    return new Mat4(
-      [ AspectRatio * FovRad, 0, 0, 0,
-        0, FovRad, 0, 0,
-        0, 0, (Far / (Far - Near)), ((-Far * Near) / (Far - Near)),
-        0, 0, 1, 0 ]);
+    this.data = [ AspectRatio * FovRad, 0,      0,                    0,
+                  0,                    FovRad, 0,                    0,
+                  0,                    0,      (Far / (Far - Near)), ((-Far * Near) / (Far - Near)),
+                  0,                    0,      1,                    0 ];
+  }
+  
+  pointAt(position, target, up_axis) {
+    // Calculate new forward direction
+    var new_forward = Vec3.subtract(target, position).normalize();
+  
+    // Calculate new up direction
+    var a = Vec3.multiply(new_forward, Vec3.dotProduct(up_axis, new_forward));
+    var new_up = Vec3.subtract(up_axis, a).normalize();
+  
+    // Calculate new right direction
+    var new_right = Vec3.crossProduct(new_up, new_forward);
+  
+    this.data = [ new_right.x, new_up.x, new_forward.x, position.x,
+                  new_right.y, new_up.y, new_forward.y, position.y, 
+                  new_right.z, new_up.z, new_forward.y, position.z, 
+                  0,          0,       0,            1 ];
+  }
+  
+  quickInverse() {
+    var inverse = 
+      [ this.data[0], this.data[4], this.data[8],  -(this.data[12] * this.data[0] + this.data[13] * this.data[1] + this.data[10] * this.data[2]),
+        this.data[1], this.data[5], this.data[9],  -(this.data[12] * this.data[4] + this.data[13] * this.data[5] + this.data[10] * this.data[6]),
+        this.data[2], this.data[6], this.data[10], -(this.data[12] * this.data[8] + this.data[13] * this.data[9] + this.data[10] * this.data[10]),
+        0,            0,            0,             1 ];
+    this.data = inverse;
   }
   
   static multiplyMatrix(m1, m2) {
@@ -118,41 +139,4 @@ class Mat4 {
         m1.data[8]  + m2.data[8],  m1.data[9]  + m2.data[9],  m1.data[10] + m2.data[10], m1.data[11] + m2.data[11],
         m1.data[12] + m2.data[12], m1.data[13] + m2.data[13], m1.data[14] + m2.data[14], m1.data[15] + m2.data[15] ]);
   }
-  
-  static matrix_PointAt(pos, target, up) {
-    // Calculate new forward direction
-    var newForward = Vec3d.subtract(target, pos);
-    newForward = Vec3d.normalize(newForward);
-  
-    // Calculate new up direction
-    var a = Vec3d.multiply(newForward, v_dotProduct(up, newForward));
-    var newUp = Vec3d.subtract(up, a);
-    newUp = Vec3d.normalize(newUp);
-  
-    var newRight = Vec3d.crossProduct(newUp, newForward);
-  
-    return new Mat4(
-      [ newRight.x, newUp.x, newForward.x, pos.x,
-        newRight.y, newUp.y, newForward.y, pos.y, 
-        newRight.z, newUp.z, newForward.y, pos.z, 
-        0, 0, 0, 1 ]);
-  }
-  static matrix_QuickInverse(m) {
-    var matrix = new Mat4(
-      [
-        
-
-
-      ]);
-    matrix.m[0][0] = m.m[0][0]; matrix.m[0][1] = m.m[1][0]; matrix.m[0][2] = m.m[2][0]; matrix.m[0][3] = 0;
-    matrix.m[1][0] = m.m[0][1]; matrix.m[1][1] = m.m[1][1]; matrix.m[1][2] = m.m[2][1]; matrix.m[1][3] = 0;
-    matrix.m[2][0] = m.m[0][2]; matrix.m[2][1] = m.m[1][2]; matrix.m[2][2] = m.m[2][2]; matrix.m[2][3] = 0;
-    matrix.m[3][0] = -(m.m[3][0] * matrix.m[0][0] + m.m[3][1] * matrix.m[1][0] + m.m[3][2] * matrix.m[2][0]);
-    matrix.m[3][1] = -(m.m[3][0] * matrix.m[0][1] + m.m[3][1] * matrix.m[1][1] + m.m[3][2] * matrix.m[2][1]);
-    matrix.m[3][2] = -(m.m[3][0] * matrix.m[0][2] + m.m[3][1] * matrix.m[1][2] + m.m[3][2] * matrix.m[2][2]);
-    matrix.m[3][3] = 1;
-    return matrix;
-  }
-
-
 }
