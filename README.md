@@ -1,6 +1,8 @@
 # 3D Organizational Chart using HTML5 and Javascript
 A project about visualizing connections in 3 dimensions.
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 ## Description
 This project aims to create a an organization chart in 3 dimensions to allow the visualization of more complex organizations. It uses a web app as its main interface.
 
