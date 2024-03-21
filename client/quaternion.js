@@ -75,9 +75,9 @@ class Quaternion {
    */
 	up() {
     return new Vec3d(
-      2 * ((x * y) - (w * z)),
-      1 - (2 * ((x * x) + (z * z))),
-      2 * ((y * z) + (w * x))
+      2 * ((this.x * this.y) - (this.w * this.z)),
+      1 - (2 * ((this.x * this.x) + (this.z * this.z))),
+      2 * ((this.y * this.z) + (this.w * this.x))
 		);
 	}
 
@@ -87,9 +87,9 @@ class Quaternion {
    */
 	right() {
     return new Vec3d(
-      1 - (2 * ((y * y) + (z * z))),
-      2 * ((x * y) + (w * z)),
-      2 * ((x * z) - (w * y))
+      1 - (2 * ((this.y * this.y) + (this.z * this.z))),
+      2 * ((this.x * this.y) + (this.w * this.z)),
+      2 * ((this.x * this.z) - (this.w * this.y))
 		);
 	}
 
@@ -98,7 +98,7 @@ class Quaternion {
    * @returns {Vec3} The vector part.
    */
 	vector() {
-		return new Vec3d(x, y, z);
+		return new Vec3d(this.x, this.y, this.z);
 	}
 
   /**
@@ -106,23 +106,23 @@ class Quaternion {
    * @returns {number} The magnitude of this quaternion.
    */
   magnitude() {
-    return Math.sqrt((w * w) + (x * x) + (y * y) + (z * z));
+    return Math.sqrt((this.w * this.w) + (this.x * this.x) + (this.y * this.y) + (this.z * this.z));
   }
 
   /** Normalizes this quaternion. */
   normalize() {
     let magnitude = magnitude();
-    w = w / magnitude;
-    x = x / magnitude;
-    y = y / magnitude;
-    z = z / magnitude;
+    this.w = this.w / magnitude;
+    this.x = this.x / magnitude;
+    this.y = this.y / magnitude;
+    this.z = this.z / magnitude;
   }
 
   /** Converts this quaternion into its conjugate. */
   conjugate() {
-    x = -x;
-    y = -y;
-    z = -z;
+    this.x = -this.x;
+    this.y = -this.y;
+    this.z = -this.z;
   }
 
   /**
@@ -139,12 +139,12 @@ class Quaternion {
    * @returns {Mat4} The resulting matrix.
    */
   matrix() {
-    var sqx = x * x, sqy = y * y, sqz = z * z;
+    var sqx = this.x * this.x, sqy = this.y * this.y, sqz = this.z * this.z;
     return new Mat4([
-      1 - (2 * sqy) - (2 * sqz), (2 * x * y) - (2 * w * z), (2 * x * z) + (2 * w * y), 0,
-      (2 * x * y) + (2 * w * z), 1 - (2 * sqx) - (2 * sqz), (2 * y * z) - (2 * w * x), 0,
-      (2 * x * z) - (2 * w * y), (2 * y * z) + (2 * w * x), 1 - (2 * sqx) - (2 * sqy), 0,
-      0,                         0,                         0,                         1
+      1 - (2 * sqy) - (2 * sqz),                     (2 * this.x * this.y) - (2 * this.w * this.z), (2 * this.x * this.z) + (2 * this.w * this.y), 0,
+      (2 * this.x * this.y) + (2 * this.w * this.z), 1 - (2 * sqx) - (2 * sqz),                     (2 * this.y * this.z) - (2 * this.w * this.x), 0,
+      (2 * this.x * this.z) - (2 * this.w * this.y), (2 * this.y * this.z) + (2 * this.w * this.x), 1 - (2 * sqx) - (2 * sqy),                     0,
+      0,                                             0,                                             0,                                             1
     ]);
   }
 
@@ -154,12 +154,12 @@ class Quaternion {
    * @returns {Mat4}           The resulting matrix.
    */
   matrix(translation) {
-    var sqx = x * x, sqy = y * y, sqz = z * z;
+    var sqx = this.x * this.x, sqy = this.y * this.y, sqz = this.z * this.z;
     return new Mat4([
-      1 - (2 * sqy) - (2 * sqz), (2 * x * y) - (2 * w * z), (2 * x * z) + (2 * w * y), translation.x,
-      (2 * x * y) + (2 * w * z), 1 - (2 * sqx) - (2 * sqz), (2 * y * z) - (2 * w * x), translation.y,
-      (2 * x * z) - (2 * w * y), (2 * y * z) + (2 * w * x), 1 - (2 * sqx) - (2 * sqy), translation.z,
-      0,                         0,                         0,                         1
+      1 - (2 * sqy) - (2 * sqz),                     (2 * this.x * this.y) - (2 * this.w * this.z), (2 * this.x * this.z) + (2 * this.w * this.y), translation.x,
+      (2 * this.x * this.y) + (2 * this.w * this.z), 1 - (2 * sqx) - (2 * sqz),                     (2 * this.y * this.z) - (2 * this.w * this.x), translation.y,
+      (2 * this.x * this.z) - (2 * this.w * this.y), (2 * this.y * this.z) + (2 * this.w * this.x), 1 - (2 * sqx) - (2 * sqy),                     translation.z,
+      0,                                             0,                                             0,                                             1
     ]);
   }
   
