@@ -4,17 +4,18 @@
  */
 
 class Quaternion {
-  constructor() {
-    this.w = 1;
-    this.x = 0;
-    this.y = 0;
-    this.z = 0;
-  }
   constructor(w, x, y, z) {
     this.w = w;
     this.x = x;
     this.y = y;
     this.z = z;
+  }
+
+  static empty() {
+    return new Quaternion(1, 0, 0, 0);
+  }
+  print() {
+    return "(" + this.w + " " + this.x + " " + this.y + " " + this.z + ")";
   }
   /**
    * @returns a deep copy of this Quaternion
@@ -35,9 +36,9 @@ class Quaternion {
    */
   getForward() {
 		return new Vec3d(
-      2 * ((x * z) + (w * y)), 
-      2 * ((y * z) - (w * x)), 
-      1 - (2 * ((x * x) + (y * y)))
+      2 * ((this.x * this.z) + (this.w * this.y)), 
+      2 * ((this.y * this.z) - (this.w * this.x)), 
+      1 - (2 * ((this.x * this.x) + (this.y * this.y)))
     );
 	}
   /**

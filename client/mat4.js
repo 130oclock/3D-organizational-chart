@@ -10,24 +10,28 @@
  */
 class Mat4 {
   /**
-   * Default constructor of class Mat4.
-   */
-  constructor() {
-    this.data = [ 0, 0, 0, 0,
-                  0, 0, 0, 0,
-                  0, 0, 0, 0,
-                  0, 0, 0, 0 ];
-  }
-  /**
-   * Constructs a Mat4 from the input array. The array must be 16 elements long.
+   * Default constructor of class Mat4. Constructs a Mat4 from the input array. The array must be 16 elements long.
    * @param {Array} array 
    */
   constructor(array) {
     this.data = array;
   }
+
+  static empty() {
+    return new Mat4([ 0, 0, 0, 0,
+                      0, 0, 0, 0,
+                      0, 0, 0, 0,
+                      0, 0, 0, 0 ]);
+  }
   /**
    * @returns A deep copy of this matrix
    */
+  print() {
+    return `[${this.data[0]}, ${this.data[1]}, ${this.data[2]}, ${this.data[3]}<br>` +
+           `${this.data[4]}, ${this.data[5]}, ${this.data[6]}, ${this.data[7]}<br>` +
+           `${this.data[8]}, ${this.data[9]}, ${this.data[10]}, ${this.data[11]}<br>` +
+           `${this.data[12]}, ${this.data[13]}, ${this.data[14]}, ${this.data[15]}]`;
+  }
   clone() {
     return new Mat4([
       this.data[0],  this.data[1],  this.data[2],  this.data[3],

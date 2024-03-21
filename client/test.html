@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head></head>
+  <body></body>
+	<script src="client/vec3.js"></script>
+	<script src="client/mat4.js"></script>
+	<script src="client/quaternion.js"></script>
+  <script>
+    var body = document.body;
+
+    function TEST(title, test_script, answer) {
+      var test_panel = document.createElement("div");
+      var output = test_script();
+      test_panel.innerHTML = "TEST: " + title + "<br>" + output;
+      test_panel.style = "padding: 4px; margin: 4px; outline: solid black 1px;";
+      if (output !== answer) {
+        test_panel.style.outline = "solid #F07777 4px";
+        test_panel.style.marginTop = "10px";
+        test_panel.style.marginBottom = "10px";
+      }
+      body.append(test_panel);
+    }
+    
+    // Test the Vec3 length
+    TEST("Vec3 Length", () => {
+      let v = new Vec3(1, 1, 1);
+      return v.getLength();
+    }, "1");
+
+    // Test the Vec3 multiply
+    TEST("Vec3 Multiply", () => {
+      let v1 = new Vec3(4, 3, -2);
+      return Vec3.multiply(v1, 3).print();
+    }, "(12 9 -6)");
+
+    // Test the Mat4 print
+    TEST("Mat4 Print", () => {
+      let m4 = Mat4.empty();
+      return m4.print();
+    }, "");
+  </script>
+</html>

@@ -20,12 +20,13 @@ class Vec3 {
     this.y = y;
     this.z = z;
   }
-  constructor() {
-    this.x = 0;
-    this.y = 0;
-    this.z = 0;
-  }
 
+  static empty() {
+    return new Vec3(0, 0, 0);
+  }
+  print() {
+    return "(" + this.x + " " + this.y + " " + this.z + ")";
+  }
   /**
    * Creates a new Vec3 with identical values as this Vec3.
    * @returns a Vec3
@@ -46,7 +47,7 @@ class Vec3 {
    * @returns the length of this Vec3
    */
   getLength() {
-    return Math.sqrt(dotProduct(v, v));
+    return Math.sqrt(Vec3.dotProduct(this, this));
   }
   /**
    * Normalizes this Vec3.

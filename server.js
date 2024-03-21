@@ -21,6 +21,10 @@ app.get('/', function(_request, response) {
 	response.sendFile(path.join(__dirname, '/client/index.html'));
 });
 
+app.get('/test', function(_request, response) {
+	response.sendFile(path.join(__dirname, '/client/test.html'));
+})
+
 // Starts the server and listens
 server.listen(port_, function() {
 	console.log('Listening on port ' + port_);
