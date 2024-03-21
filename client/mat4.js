@@ -1,30 +1,35 @@
 /**
- * This file contains the Mat4 class. A general representation of 4-by-4 matrices.
+ * This file contains the Mat4 class.
  * @author Aidan Donley, Andy He, Amr Hussein
  * @version 1.0.0
  */
 
 
-/**
- * A class representing a 4-by-4 matrix. 
- */
+/** This class represents a 4-by-4 matrix. It contains 16 numbers. */
 class Mat4 {
   /**
-   * Default constructor of class Mat4. Constructs a Mat4 from the input array. The array must be 16 elements long.
-   * @param {Array} array 
+   * Creates a new 4-by-4 matrix from the input data. The array must be 16 elements long.
+   * @constructor
+   * @param {Array<number>} data 
    */
-  constructor(array) {
-    this.data = array;
+  constructor(data) {
+    this.data = data;
   }
 
+  /**
+   * Creates a new 4-by-4 matrix with 16 0s.
+   * @returns {Mat4} A new matrix.
+   */
   static empty() {
     return new Mat4([ 0, 0, 0, 0,
                       0, 0, 0, 0,
                       0, 0, 0, 0,
                       0, 0, 0, 0 ]);
   }
+
   /**
-   * @returns A deep copy of this matrix
+   * Converts the matrix into string format.
+   * @returns {string} The matrix as text.
    */
   print() {
     return `[${this.data[0]}, ${this.data[1]}, ${this.data[2]}, ${this.data[3]}<br>` +
@@ -32,6 +37,11 @@ class Mat4 {
            `${this.data[8]}, ${this.data[9]}, ${this.data[10]}, ${this.data[11]}<br>` +
            `${this.data[12]}, ${this.data[13]}, ${this.data[14]}, ${this.data[15]}]`;
   }
+  
+  /**
+   * Returns a new matrix with the same data as this one.
+   * @returns {Mat4} A copy of this matrix.
+   */
   clone() {
     return new Mat4([
       this.data[0],  this.data[1],  this.data[2],  this.data[3],
@@ -39,44 +49,75 @@ class Mat4 {
       this.data[8],  this.data[9],  this.data[10], this.data[11],
       this.data[12], this.data[13], this.data[14], this.data[15] ]);
   }
+
   /**
-   * Turns this matrix into an identity matrix.
+   * Copies the data from other into this matrix. Shallow copy.
+   * @param {Mat4} other The matrix to copy.
    */
-  makeIdentity() {
+  copy(other) {
+    for (let i = 0; i < 16; ++i)
+      this.data[i] = other.data[i];
+  }
+
+  /** Makes this matrix into an identity matrix by overwriting the data. */
+  identity() {
     this.data = [ 1, 0, 0, 0,
                   0, 1, 0, 0,
                   0, 0, 1, 0,
                   0, 0, 0, 1 ];
   }
 
-  makeRotationX(angle) { //roll
+  /**
+   * Makes this matrix into a rotation matrix around the X-axis. Represents roll in Euler angles.
+   * @param {number} angle Angle in radians.
+   */
+  makeRotationX(angle) {
     this.data = [ 1,  0,               0,               0,
                   0,  Math.cos(angle), Math.sin(angle), 0,
                   0, -Math.sin(angle), Math.cos(angle), 0,
                   0,  0,               0,               1 ];
   }
 
-  makeRotationY(angle){ //pitch
+  /**
+   * Makes this matrix into a rotation matrix around the Y-axis. Represents pitch in Euler angles.
+   * @param {number} angle Angle in radians.
+   */
+  makeRotationY(angle){
     this.data = [  Math.cos(angle), 0, Math.sin(angle), 0,
                    0,               1, 0,               0,
                   -Math.sin(angle), 0, Math.cos(angle), 0,
                    0,               0, 0,               1 ];
   }
 
-  makeRotationZ(angle) { //yaw
+  /**
+   * Makes this matrix into a rotation matrix around the Z-axis. Represents yaw in Euler angles.
+   * @param {number} angle Angle in radians.
+   */
+  makeRotationZ(angle) {
     this.data = [  Math.cos(angle), Math.sin(angle), 0, 0,
                   -Math.sin(angle), Math.cos(angle), 0, 0,
                    0,               0,               1, 0,
                    0,               0,               0, 1 ];
   }
 
-  makeTranslation(x, y, z) {
-    this.data = [ 1, 0, 0, x,
-                  0, 1, 0, y,
-                  0, 0, 1, z,
+  /**
+   * Makes this matrix into a translation matrix.
+   * @param {Vec3} v The vector to translate by.
+   */
+  makeTranslation(v) {
+    this.data = [ 1, 0, 0, v.x,
+                  0, 1, 0, v.y,
+                  0, 0, 1, v.z,
                   0, 0, 0, 1 ];
   }
 
+  /**
+   * Makes this matrix into a projection matrix that converts from world space to camera space.
+   * @param {number} FovDegrees  The FOV in degrees.
+   * @param {number} AspectRatio The aspect ratio of the screen.
+   * @param {number} Near 
+   * @param {number} Far 
+   */
   makeProjection(FovDegrees, AspectRatio, Near, Far) {
     var FovRad = 1 / Math.tan(FovDegrees * 0.5 / 180 * Math.PI);
     this.data = [ AspectRatio * FovRad, 0,      0,                    0,
@@ -85,13 +126,19 @@ class Mat4 {
                   0,                    0,      1,                    0 ];
   }
   
-  pointAt(position, target, up_axis) {
+  /**
+   * Makes this matrix into one that points at the target from the given position.
+   * @param {Vec3} position The position of the camera.
+   * @param {Vec3} target   The target to point at.
+   * @param {Vec3} up       The up direction of the camera. 
+   */
+  pointAt(position, target, up) {
     // Calculate new forward direction
     var new_forward = Vec3.subtract(target, position).normalize();
   
     // Calculate new up direction
-    var a = Vec3.multiply(new_forward, Vec3.dotProduct(up_axis, new_forward));
-    var new_up = Vec3.subtract(up_axis, a).normalize();
+    var a = Vec3.multiplyScalar(new_forward, Vec3.dotProduct(up, new_forward));
+    var new_up = Vec3.subtract(up, a).normalize();
   
     // Calculate new right direction
     var new_right = Vec3.crossProduct(new_up, new_forward);
@@ -102,6 +149,7 @@ class Mat4 {
                   0,          0,       0,            1 ];
   }
   
+  /** Quickly inverts the matrix. */
   quickInverse() {
     var inverse = 
       [ this.data[0], this.data[4], this.data[8],  -(this.data[12] * this.data[0] + this.data[13] * this.data[1] + this.data[10] * this.data[2]),
@@ -111,6 +159,11 @@ class Mat4 {
     this.data = inverse;
   }
 
+  /**
+   * Multiplies the vector by this matrix.
+   * @param {Vec3} v The vector.
+   * @returns        The resulting vector.
+   */
   multiplyVec3(v) {
     return new Vec3d(
       (v.x * this.data[0]) + (v.y * this.data[4]) + (v.z * this.data[8])  + (this.data[12]),
@@ -119,6 +172,12 @@ class Mat4 {
     );
   }
 
+  /**
+   * Adds the two matrices together.
+   * @param {Mat4} m1 The first matrix.
+   * @param {Mat4} m2 The second matrix.
+   * @returns         The resulting matrix.
+   */
   static add(m1, m2) {
     return new Mat4(
       [ m1.data[0]  + m2.data[0],  m1.data[1]  + m2.data[1],  m1.data[2]  + m2.data[2],  m1.data[3]  + m2.data[3],
@@ -128,10 +187,10 @@ class Mat4 {
   }
 
   /**
-   * Multiplies m1 by m2. Both m1 and m2 must be valid 4-by-4 matrices.
-   * @param {Mat4} m1 
-   * @param {Mat4} m2 
-   * @returns A new Mat4
+   * Multiplies two matrices together producing a new 4-by-4 matrix.
+   * @param {Mat4} m1 The first matrix.
+   * @param {Mat4} m2 The second matrix.
+   * @returns         The resulting matrix.
    */
   static multiply(m1, m2) {
     return new Mat4(

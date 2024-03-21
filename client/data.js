@@ -15,7 +15,7 @@ class Camera {
    */
   constructor(position_in) {
     this.position = position_in;
-    this.rotation = null;
+    this.rotation = Quaternion.empty();
   }
 }
 
@@ -47,6 +47,8 @@ class DataNode {
    */
   constructor(person_in) {
     collection.push(this);
+
+    this.position = Vec3.empty();
 
     this.person = person_in;
     this.children = [];

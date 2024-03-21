@@ -8,6 +8,9 @@
   <script>
     var body = document.body;
 
+    /**
+     * Runs the test_script and prints the results in an HTML div.
+     */
     function TEST(title, test_script, answer) {
       var test_panel = document.createElement("div");
       var output = test_script();
@@ -24,7 +27,7 @@
     // Test the Vec3 length
     TEST("Vec3 Length", () => {
       let v = new Vec3(1, 1, 1);
-      return v.getLength();
+      return v.length();
     }, "1");
 
     // Test the Vec3 multiply

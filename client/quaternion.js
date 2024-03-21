@@ -1,9 +1,20 @@
 /**
  * This file contains the Quaternion class.
  * @author Aidan Donley
+ * @version 1.0.0
  */
 
+
+/** This class represents a quaternion with an ordered quadruplet of numbers (w x y z). */
 class Quaternion {
+  /**
+   * Creates a new quaternion from a quadruplet of numbers.
+   * @constructor
+   * @param {number} w 
+   * @param {number} x 
+   * @param {number} y 
+   * @param {number} z 
+   */
   constructor(w, x, y, z) {
     this.w = w;
     this.x = x;
@@ -11,84 +22,103 @@ class Quaternion {
     this.z = z;
   }
 
+  /**
+   * Creates a new quaternion with default values (1 0 0 0).
+   * @returns A new quaternion.
+   */
   static empty() {
     return new Quaternion(1, 0, 0, 0);
   }
+
+  /**
+   * Converts the quaternion into string format.
+   * @returns {string} The quaternion as text.
+   */
   print() {
     return "(" + this.w + " " + this.x + " " + this.y + " " + this.z + ")";
   }
+
   /**
-   * @returns a deep copy of this Quaternion
+   * Returns a new quaternion with the same values as this one.
+   * @returns {Quaternion} A copy of this Quaternion.
    */
   clone() {
     return new Quaternion(this.w, this.x, this.y, this.z);
   }
-  copy(q) {
-    this.w = q.w;
-    this.x = q.x;
-    this.y = q.y;
-    this.z = q.z;
+
+  /**
+   * Copies the w, x, y, z values from other into this quaternion.
+   * @param {Quaternion} other The quaternion to copy.
+   */
+  copy(other) {
+    this.w = other.w;
+    this.x = other.x;
+    this.y = other.y;
+    this.z = other.z;
   }
 
   /**
-   * Gets the forward vector of this quaternion.
-   * @returns a Vec3
+   * Computes the forward vector of this quaternion.
+   * @returns {Vec3} The forward vector.
    */
-  getForward() {
+  forward() {
 		return new Vec3d(
       2 * ((this.x * this.z) + (this.w * this.y)), 
       2 * ((this.y * this.z) - (this.w * this.x)), 
       1 - (2 * ((this.x * this.x) + (this.y * this.y)))
     );
 	}
+
   /**
-   * Gets the up vector of this quaternion.
-   * @returns a Vec3
+   * Computes the up vector of this quaternion.
+   * @returns {Vec3} The up vector.
    */
-	getUp() {
+	up() {
     return new Vec3d(
       2 * ((x * y) - (w * z)),
       1 - (2 * ((x * x) + (z * z))),
       2 * ((y * z) + (w * x))
 		);
 	}
+
   /**
-   * Gets the right vector of this quaternion.
-   * @returns a Vec3
+   * Computes the right vector of this quaternion.
+   * @returns {Vec3} The right vector.
    */
-	getRight() {
+	right() {
     return new Vec3d(
       1 - (2 * ((y * y) + (z * z))),
       2 * ((x * y) + (w * z)),
       2 * ((x * z) - (w * y))
 		);
 	}
+
   /**
-   * Gets the axis component of this quaternion.
-   * @returns a Vec3
+   * Returns the vector part of the imaginary component of this quaternion.
+   * @returns {Vec3} The vector part.
    */
-	getAxis() {
+	vector() {
 		return new Vec3d(x, y, z);
 	}
+
   /**
-   * @returns the magnitude of this quaternion
+   * Computes the magnitude of this quaternion.
+   * @returns {number} The magnitude of this quaternion.
    */
-  getMagnitude() {
+  magnitude() {
     return Math.sqrt((w * w) + (x * x) + (y * y) + (z * z));
   }
-  /**
-   * Normalizes this quaternion.
-   */
+
+  /** Normalizes this quaternion. */
   normalize() {
-    var magnitude = getMagnitude();
+    let magnitude = magnitude();
     w = w / magnitude;
     x = x / magnitude;
     y = y / magnitude;
     z = z / magnitude;
   }
-  /**
-   * Converts this quaternion into its conjugate.
-   */
+
+  /** Converts this quaternion into its conjugate. */
   conjugate() {
     x = -x;
     y = -y;
@@ -96,19 +126,19 @@ class Quaternion {
   }
 
   /**
-   * Rotates this quaternion by <angle> radians around <axis>.
-   * @param {Vec3} axis The axis to rotate around
-   * @param {Float} angle The amount to rotate in radians
+   * Rotates this quaternion around an axis by some angle.
+   * @param {Vec3}   axis  The axis to rotate around.
+   * @param {number} angle The angle by which to rotate in radians.
    */
   rotate(axis, angle) {
     this.copy(Quaternion.multiply(Quaternion.localRotation(axis, angle), this));
   }
 
   /**
-   * Converts this quaternion into a 4-by-4 matrix.
-   * @returns a Mat4
+   * Computes the matrix equivalent of this quaternion.
+   * @returns {Mat4} The resulting matrix.
    */
-  getMatrix() {
+  matrix() {
     var sqx = x * x, sqy = y * y, sqz = z * z;
     return new Mat4([
       1 - (2 * sqy) - (2 * sqz), (2 * x * y) - (2 * w * z), (2 * x * z) + (2 * w * y), 0,
@@ -117,30 +147,31 @@ class Quaternion {
       0,                         0,                         0,                         1
     ]);
   }
+
   /**
-   * Converts this quaternion into a 4-by-4 matrix.
-   * @param {Vec3} position The position of the object to be rotated
-   * @returns a Mat4
+   * Computes the matrix equivalent of this quaternion along with the provided translation.
+   * @param {Vec3} translation The translation.
+   * @returns {Mat4}           The resulting matrix.
    */
-  getMatrix(position) {
+  matrix(translation) {
     var sqx = x * x, sqy = y * y, sqz = z * z;
     return new Mat4([
-      1 - (2 * sqy) - (2 * sqz), (2 * x * y) - (2 * w * z), (2 * x * z) + (2 * w * y), position.x,
-      (2 * x * y) + (2 * w * z), 1 - (2 * sqx) - (2 * sqz), (2 * y * z) - (2 * w * x), position.y,
-      (2 * x * z) - (2 * w * y), (2 * y * z) + (2 * w * x), 1 - (2 * sqx) - (2 * sqy), position.z,
+      1 - (2 * sqy) - (2 * sqz), (2 * x * y) - (2 * w * z), (2 * x * z) + (2 * w * y), translation.x,
+      (2 * x * y) + (2 * w * z), 1 - (2 * sqx) - (2 * sqz), (2 * y * z) - (2 * w * x), translation.y,
+      (2 * x * z) - (2 * w * y), (2 * y * z) + (2 * w * x), 1 - (2 * sqx) - (2 * sqy), translation.z,
       0,                         0,                         0,                         1
     ]);
   }
   
   /**
-   * Calculates a Quaternion that points to <target> from <pos>. The camera at <pos> will point directly at <target>.
-   * @param {Vec3} pos Position of the camera
-   * @param {Vec3} target Position of the target to look at
-   * @returns a new Quaternion
+   * Computes a new quaternion that points from the cameras position to the target.
+   * @param {Vec3}         camera The position of the camera.
+   * @param {Vec3}         target The position of the target.
+   * @returns {Quaternion}        The resulting Quaternion
    */
-  static lookAt(pos, target) {
+  static lookAt(camera, target) {
     const UP = new Vec3(0, 0, 1);
-    var forward = Vec3.subtract(target, pos).normalize();
+    var forward = Vec3.subtract(target, camera).normalize();
     var dot = Vec3.dotProduct(UP, forward);
   
     // Avoid gimble lock
@@ -155,24 +186,26 @@ class Quaternion {
     var axis = Vec3.crossProduct(UP, forward).normalize();
     return Quaternion.localRotation(axis, angle).normalize();
   }
+
   /**
-   * Rotates <point> around <center> by <angle> radians around the local axis <axis>.
-   * @param {Vec3} center 
-   * @param {Vec3} point 
-   * @param {Vec3} axis 
-   * @param {Float} angle 
-   * @returns a new Vec3
+   * Computes the rotation of the point around the center axis by some angle.
+   * @param {Vec3}   center The center of the rotation.
+   * @param {Vec3}   point  The point to rotate.
+   * @param {Vec3}   axis   The axis to rotate around.
+   * @param {Float}  angle  The angle by which to rotate in radians.
+   * @returns {Vec3}        The resulting vector.
    */
   static rotateAround(center, point, axis, angle) {
-    var worldMat = Quaternion.localRotation(axis, angle).getMatrix(center);
+    var worldMat = Quaternion.localRotation(axis, angle).matrix(center);
     return worldMat.multiplyVec3(Vec3.subtract(point, center));
   }
+
   /**
-   * Smooth Linear Interpolation between two rotations <q1>, <q2> using time factor <time>
-   * @param {Quaternion} q1 
-   * @param {Quaternion} q2 
-   * @param {Float} time 
-   * @returns a new Quaternion
+   * Computes the spherical linear interpolation between two the two quaternions using a time factor.
+   * @param {Quaternion}   q1   The starting rotation.
+   * @param {Quaternion}   q2   The target rotation.
+   * @param {Float}        time The time step.
+   * @returns {Quaternion}      The resulting rotation.
    */
   static slerp = function(q1, q2, time) {
     q1 = q1.clone().normalize();
@@ -212,20 +245,40 @@ class Quaternion {
 
   /**
    * Calculates the dot product between two quaternions.
-   * @param {Quaternion} q1 
-   * @param {Quaternion} q2 
-   * @returns a float
+   * @param {Quaternion} q1 The first quaternion.
+   * @param {Quaternion} q2 The second quaternion.
+   * @returns {number}      The dot product.
    */
   static dotProduct(q1, q2) {
 	  return q1.x * q2.x + q1.y * q2.y + q1.z * q2.z + q1.w * q2.w;
   }
 
+  /**
+   * Adds two quaternions.
+   * @param {Quaternion}   q1 The first quaternion.
+   * @param {Quaternion}   q2 The second quaternion.
+   * @returns {Quaternion}    The sum of the quaternions.
+   */
   static add(q1, q2) {
 	  return new Quaternion(q1.w + q2.w, q1.x + q2.x, q1.y + q2.y, q1.z + q2.z);
   }
+
+  /**
+   * Subtracts the second quaternion from the first.
+   * @param {Quaternion}   q1 The first quaternion.
+   * @param {Quaternion}   q2 The second quaternion.
+   * @returns {Quaternion}    The result of subtracting the second quaternion from the first.
+   */
   static subtract(q1, q2) {
     return new Quaternion(q1.w - q2.w, q1.x - q2.x, q1.y - q2.y, q1.z - q2.z);
   }
+
+  /**
+   * Multiplies two quaternions.
+   * @param {Quaternion}   q1 The first quaternion.
+   * @param {Quaternion}   q2 The second quaternion.
+   * @returns {Quaternion}    The result of multiplying the quaternions.
+   */
   static multiply(q1, q2) {
     return new Quaternion(
       (q1.w * q2.w) - (q1.x * q2.x) - (q1.y * q2.y) - (q1.z * q2.z),
@@ -234,11 +287,12 @@ class Quaternion {
       (q1.w * q2.z) + (q1.x * q2.y) - (q1.y * q2.x) + (q1.z * q2.w)
     );
   }
+
   /**
-   * Creates a quaternion which represents a rotation of <angle> radians around <axis>.
-   * @param {Vec3} axis 
-   * @param {Float} angle 
-   * @returns a Quaternion
+   * Creates a quaternion which represents a rotation around an axis by some angle.
+   * @param {Vec3}         axis  The axis to rotate around.
+   * @param {number}       angle The angle by which to rotate in radians.
+   * @returns {Quaternion}       The resulting rotation.
    */
   static localRotation(axis, angle) {
     var angleHalf = angle / 2;
