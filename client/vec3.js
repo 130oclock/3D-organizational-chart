@@ -33,7 +33,7 @@ class Vec3 {
    * @returns {string} The vector as text.
    */
   print() {
-    return "(" + this.x + " " + this.y + " " + this.z + ")";
+    return `(${this.x} ${this.y} ${this.z})`;
   }
 
   /**
@@ -65,9 +65,9 @@ class Vec3 {
   /** Normalizes this vector. */
   normalize() {
     var l = length();
-    this.x = x / l;
-    this.y = y / l;
-    this.z = z / l;
+    this.x = this.x / l;
+    this.y = this.y / l;
+    this.z = this.z / l;
   }
 
   /**

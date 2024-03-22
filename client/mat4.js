@@ -113,16 +113,16 @@ class Mat4 {
 
   /**
    * Makes this matrix into a projection matrix that converts from world space to camera space.
-   * @param {number} FovDegrees  The FOV in degrees.
-   * @param {number} AspectRatio The aspect ratio of the screen.
-   * @param {number} Near 
-   * @param {number} Far 
+   * @param {number} fovDegrees  The FOV in degrees.
+   * @param {number} aspectRatio The aspect ratio of the screen.
+   * @param {number} near 
+   * @param {number} far 
    */
-  makeProjection(FovDegrees, AspectRatio, Near, Far) {
-    var FovRad = 1 / Math.tan(FovDegrees * 0.5 / 180 * Math.PI);
-    this.data = [ AspectRatio * FovRad, 0,      0,                    0,
-                  0,                    FovRad, 0,                    0,
-                  0,                    0,      (Far / (Far - Near)), ((-Far * Near) / (Far - Near)),
+  makeProjection(fovDegrees, aspectRatio, near, far) {
+    var fovRad = 1 / Math.tan(fovDegrees * 0.5 / 180 * Math.PI);
+    this.data = [ aspectRatio * fovRad, 0,      0,                    0,
+                  0,                    fovRad, 0,                    0,
+                  0,                    0,      (far / (far - near)), ((-far * near) / (far - near)),
                   0,                    0,      1,                    0 ];
   }
   

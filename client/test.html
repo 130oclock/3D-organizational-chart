@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html>
-  <head></head>
+  <head>
+		<title>Organization Chart</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta charset="UTF-8">
+  </head>
   <body></body>
 	<script src="client/vec3.js"></script>
 	<script src="client/mat4.js"></script>
@@ -28,7 +32,7 @@
     TEST("Vec3 Length", () => {
       let v = new Vec3(1, 1, 1);
       return v.length();
-    }, "1");
+    }, Math.sqrt(3));
 
     // Test the Vec3 multiply
     TEST("Vec3 Multiply", () => {

@@ -35,7 +35,7 @@ class Quaternion {
    * @returns {string} The quaternion as text.
    */
   print() {
-    return "(" + this.w + " " + this.x + " " + this.y + " " + this.z + ")";
+    return `(${this.w} ${this.x} ${this.y} ${this.z})`;
   }
 
   /**
