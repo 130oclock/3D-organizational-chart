@@ -4,13 +4,13 @@
  * @version 1.0.0
  */
 
-let chart = new Chart();
+var chart = new Chart();
 
 // add nodes
 chart.insert([], new Member("Ben"));
-chart.insert([Node.collection[0]], new Member("Tom"));
-chart.insert([Node.collection[0]], new Member("Mark"));
-chart.insert([Node.collection[1]], new Member("John"));
-chart.insert([Node.collection[2], Node.collection[3]], new Member("Tim"));
+chart.insert([DataNode.collection[0]], new Member("Tom"));
+chart.insert([DataNode.collection[0]], new Member("Mark"));
+let rNode = chart.insert([DataNode.collection[1]], new Member("John"));
+chart.insert([DataNode.collection[2], DataNode.collection[3]], new Member("Tim"));
 
 chart.print();

@@ -1,0 +1,66 @@
+:root {
+  --color-high: white;
+  --color-main: #F1EDE5;
+  --color-dark: #e5e0d5;
+  --color-acc: #E7C9F0;
+  --color-text: black;
+}
+
+body {
+  background-color: var(--color-main);
+
+  margin: 0px;
+  padding: 16px;
+}
+
+.chart.body {
+  background-color: var(--color-high);
+  border-radius: 8px;
+
+  margin: auto;
+
+  min-width: 800px;
+  min-height: 600px;
+  width: 80%;
+  height: 80%;
+
+  overflow: hidden;
+	perspective: 400px;
+	perspective-origin: center;
+  position: relative;
+
+  box-shadow: 0px 0px 10px var(--color-acc);
+}
+
+.chart.member {
+  background-color: var(--color-high);
+  color: var(--color-text);
+  border: 2px solid var(--color-acc);
+  border-radius: 8px;
+
+  margin: 0px;
+  padding: 8px 12px;
+
+  transition-duration: 200ms;
+
+  overflow: hidden;
+
+	position: absolute;
+	transform-origin: center;
+
+	-webkit-transform: translate3d(-50%, -50%, 0);
+	-moz-transform: translate3d(-50%, -50%, 0);
+	transform: translate3d(-50%, -50%, 0);
+
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+  
+  box-shadow: inset 0px 0px 10px var(--color-acc);
+}
+
+.chart.member:hover {
+  border-color: black;
+}

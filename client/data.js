@@ -23,6 +23,10 @@ class Member {
   constructor(name) {
     this.name = name;
   }
+
+  getHTML() {
+    return `Name: ${this.name}`;
+  }
 }
 
 /** This class handles organizing node objects. */
@@ -31,25 +35,29 @@ class Chart {
     // The root node of the chart.
     this.root = null;
     this.size = 0;
+
+    this.body = document.createElement("div");
+    this.body.classList.add("chart", "body");
+    document.body.appendChild(this.body);
   }
 
   /** Prints a list of nodes in the chart. */
   print() {
-    for (let i = 0; i < Node.collection.length; ++i) {
-      let node = Node.collection[i];
+    for (let i = 0; i < DataNode.collection.length; ++i) {
+      let node = DataNode.collection[i];
       console.log(node.depth(), node.member.name);
     }
   }
 
   /**
    * Inserts a new node as a child of the given nodes. The parents given must already exist in the chart.
-   * @param {Array<Node>} parents The parents of the new node.
-   * @param {Member}      member  The member which the node represents.
-   * @returns {Node}              The new node.
+   * @param {Array<DataNode>} parents The parents of the new node.
+   * @param {Member}          member  The member which the node represents.
+   * @returns {DataNode}              The new node.
    */
   insert(parents, member) {
     ++this.size;
-    let newNode = new Node(member);
+    let newNode = new DataNode(member, this);
     let pLength = parents.length;
     newNode.parents = parents;
 
@@ -81,10 +89,25 @@ class Chart {
   }
 
   /**
+   * Removes the given node from the chart.
+   * @param {DataNode}   node The node to remove.
+   * @returns {DataNode}      The new root node.
+   */
+  remove(node) {
+    if (node === null) return;
+    // check if node has any parents
+    if (node.parents.length === 0) {
+      this.getFirstNeighbor(node);
+    }
+    // check if there are any more nodes in the neighborhood
+    // check if node is the parent of any nodes
+  }
+
+  /**
    * Adds a node to a neighborhood.
-   * @param {Node}  neighborhood The first node in the neighborhood.
-   * @param {Node}  node         The node to add.
-   * @return {Node}              The first node in the neighborhood.
+   * @param {DataNode}  neighborhood The first node in the neighborhood.
+   * @param {DataNode}  node         The node to add.
+   * @return {DataNode}              The first node in the neighborhood.
    */
   addNeighbor(neighborhood, node) {
     if (neighborhood === null) return node;
@@ -99,31 +122,68 @@ class Chart {
   }
 
   /**
-   * Removes the given node from the chart.
-   * @param {Node} node The node to remove.
+   * Finds and returns the first node in the same neighborhood as the given node.
+   * @param {DataNode}   node A node in the neighborhood.
+   * @returns {DataNode}      The first node in the neighborhood.
    */
-  remove(node) {
-    if (node === null) return;
+  getFirstNeighbor(node) {
+    if (node.parents.length === 0) {
+      return this.root;
+    }
 
+    // search the children of the first parent for any matches.
+    let firstParent = node.parents[0];
+    let cLength = firstParent.children.length;
+    for (let c = 0; c < cLength; ++c) {
+      let otherNode = firstParent.children[c];
+      if (node === otherNode) 
+        return node;
+
+      // the first neighbor in this neighborhood will be the first child.
+      if (node.parentsMatch(otherNode)) {
+        return otherNode;
+      }
+    }
+    return node;
+  }
+
+  /**
+   * Counts the number of nodes in this neighborhood. A neighborhood is a group of related nodes which share the same parent.
+   * @param {DataNode} node A node in the neighborhood.
+   * @returns {number}      The number of nodes in this neighborhood.
+   */
+  countNeighbors(node) {
+    let count = 0;
+    node = this.getFirstNeighbor(node);
+    while (node !== null) {
+      ++count;
+      node = node.next;
+    }
+    return count;
   }
 }
 
 /**
  * This class handles organizing and displaying information related to an associated person.
  */
-class Node {
+class DataNode {
   static collection = [];
-  static unique = 0;
+  static #unique = 0;
+
+  static #DEF_WIDTH = 96;
+  static #DEF_HEIGHT = 54;
 
   /**
-   * Default constructor for class Node.
+   * Default constructor for class DataNode.
    * @param {Member} member The member which this node represents.
    */
-  constructor(member) {
-    this.unique = Node.unique++;
+  constructor(member, chart) {
+    this.unique = DataNode.#unique++;
 
     this.position = Vec3.empty();
     this.rotation = Quaternion.empty();
+
+    this.chart = chart;
 
     // An sorted array of this node's children.
     this.children = [];
@@ -134,8 +194,14 @@ class Node {
 
     this.member = member;
     this.display = document.createElement("div");
+    this.display.classList.add("chart", "member");
+    this.display.innerHTML = member.getHTML();
 
-    Node.collection.push(this);
+    this.chart.body.append(this.display);
+
+    this.draw();
+
+    DataNode.collection.push(this);
   }
 
   /**
@@ -168,29 +234,14 @@ class Node {
   }
 
   /**
-   * Counts the number of nodes in this neighborhood. A neighborhood is a group of related nodes which share the same parent.
-   * @returns {number} The number of nodes in this neighborhood.
-   */
-  neighbors() {
-    let count = 0;
-    let node = this;
-    while (node !== null) {
-      ++count;
-      node = node.next;
-    }
-    return count;
-  }
-
-  /**
    * Adds a node as the parent of this node while keeping the sorted order.
-   * @param {Node}     node The parent.
+   * @param {DataNode} node The parent.
    * @returns {number}      The index where the node was inserted.
    */
   addParent(node) {
     let length = this.parents.length;
     for (let i = 0; i < length; ++i)
       if (this.parents[i].unique > node.unique) {
-        // add the node into the array.
         this.parents.splice(i - 1, 0, node);
         return i - 1;
       }
@@ -199,8 +250,23 @@ class Node {
   }
 
   /**
+   * Removes a node from the list of this node's parents.
+   * @param {DataNode} node The parent to remove.
+   * @returns {number}      The index where the parent was removed or -1 if the parent was not found.
+   */
+  removeParent(node) {
+    let length = this.parents.length;
+    for (let i = 0; i < length; ++i)
+      if (this.parents[i].unique === node.unique) {
+        this.parents.splice(i, 1);
+        return i;
+      }
+    return -1;
+  }
+
+  /**
    * Returns true if other has the same parents as this node.
-   * @param {Node}      other The other node.
+   * @param {DataNode}  other The other node.
    * @returns {boolean}       True if the parents match, otherwise false.
    */
   parentsMatch(other) {
@@ -213,7 +279,7 @@ class Node {
 
   /**
    * Adds a node as the child of this node while keeping the sorted order.
-   * @param {Node}     node The child.
+   * @param {DataNode} node The child.
    * @returns {number}      The index where the node was inserted.
    */
   addChild(node) {
@@ -228,17 +294,62 @@ class Node {
     return length;
   }
 
-  /** Updates any html elements related to this node. */
-  draw() {
+  /**
+   * Removes a node from the list of this node's children.
+   * @param {DataNode} node The child to remove.
+   * @returns {number}      The index where the child was removed or -1 if the child was not found.
+   */
+  removeChild(node) {
+    let length = this.children.length;
+    for (let i = 0; i < length; ++i)
+      if (this.children[i].unique === node.unique) {
+        this.children.splice(i, 1);
+        return i;
+      }
+    return -1;
+  }
 
+  /** Updates any html elements related to this node. */
+  draw(camera) {
+    let width = DataNode.#DEF_WIDTH;
+    let height = DataNode.#DEF_HEIGHT;
+
+    let position = this.project(camera);
+
+    let yRotation = 0;
+
+    this.display.setAttribute("style",
+     `left: ${position.u}px; 
+      top: ${position.v}px; 
+      width: ${width}px; 
+      height: ${height}px;
+     `);
+
+     this.#setTransform(yRotation, 1);
+  }
+
+  /**
+   * Sets the transform property of this node's html element.
+   * @param {number} yRotation Rotation in radians
+   * @param {number} scale 
+   */
+  #setTransform(yRotation, scale) {
+    let transform = `translate3d(-50%, -50%, 0) rotateY(${yRotation}rad) scale(${scale})`;
+
+    this.display.style.webkitTransform = transform;
+    this.display.style.MozTransform = transform;
+    this.display.style.msTransform = transform;
+    this.display.style.OTransform = transform;
+    this.display.style.transform = transform;
   }
 
   /**
    * Computes the projection of this node from world space to screen space.
-   * @param {Camera} camera 
+   * @param {Camera} camera The user's camera.
+   * @returns {Vec2}        The pixel coordinate of the node.
    */
   project(camera) {
-
+    return new Vec2(this.chart.body.offsetWidth / 2, this.chart.body.offsetHeight / 2);
   }
 
   /**
@@ -246,10 +357,10 @@ class Node {
    * @param {number} unique 
    */
   static find(unique) {
-    let length = Node.collection.length;
+    let length = DataNode.collection.length; // change to binary search
     for (let i = 0; i < length; ++i)
-      if (unique === Node.collection[i].unique) 
-        return Node.collection[i];
+      if (unique === DataNode.collection[i].unique) 
+        return DataNode.collection[i];
     return null;
   }
 }
