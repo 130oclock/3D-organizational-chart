@@ -8,9 +8,30 @@
 /** This class handles the users position in 3D space and is used to project the chart onto the screen. */
 class Camera {
   /** Default constructor of class Camera. */
-  constructor() {
-    this.position = Vec3.empty();
+  constructor(WIDTH, HEIGHT) {
+    this.WIDTH = WIDTH;
+    this.HEIGHT = HEIGHT;
+
+    this.position = new Vec3(0, 0, 1); //Vec3.empty();
     this.rotation = Quaternion.empty();
+
+    this.viewMat4 = Mat4.empty();
+    this.projectMat4 = Mat4.empty();
+    this.projectMat4.makeProjection(90, HEIGHT/WIDTH, 0.1, 1000);
+
+    this.update();
+  }
+
+  update() {
+    // look at selected card
+
+    // generate view matrix
+    let rotationMat4 = this.rotation.matrix();
+    let translationMat4 = Mat4.empty();
+    translationMat4.makeTranslation(this.position);
+    translationMat4.quickInverse();
+
+    this.viewMat4 = Mat4.multiply(translationMat4, rotationMat4);
   }
 }
 
@@ -39,6 +60,8 @@ class Chart {
     this.body = document.createElement("div");
     this.body.classList.add("chart", "body");
     document.body.appendChild(this.body);
+
+    this.camera = new Camera(this.body.clientWidth, this.body.clientHeight);
   }
 
   /** Prints a list of nodes in the chart. */
@@ -180,7 +203,7 @@ class DataNode {
   constructor(member, chart) {
     this.unique = DataNode.#unique++;
 
-    this.position = Vec3.empty();
+    this.position = new Vec3(0, this.unique / 5, 0); //Vec3.empty();
     this.rotation = Quaternion.empty();
 
     this.chart = chart;
@@ -199,7 +222,7 @@ class DataNode {
 
     this.chart.body.append(this.display);
 
-    this.draw();
+    this.draw(this.chart.camera);
 
     DataNode.collection.push(this);
   }
@@ -314,13 +337,13 @@ class DataNode {
     let width = DataNode.#DEF_WIDTH;
     let height = DataNode.#DEF_HEIGHT;
 
-    let position = this.project(camera);
+    let position = this.#project(camera);
 
     let yRotation = 0;
 
     this.display.setAttribute("style",
-     `left: ${position.u}px; 
-      top: ${position.v}px; 
+     `left: ${position.x}px; 
+      top: ${position.y}px; 
       width: ${width}px; 
       height: ${height}px;
      `);
@@ -346,10 +369,26 @@ class DataNode {
   /**
    * Computes the projection of this node from world space to screen space.
    * @param {Camera} camera The user's camera.
-   * @returns {Vec2}        The pixel coordinate of the node.
+   * @returns {Vec3}        The pixel coordinate of the node.
    */
-  project(camera) {
-    return new Vec2(this.chart.body.offsetWidth / 2, this.chart.body.offsetHeight / 2);
+  #project(camera) {
+    let viewVec3 = camera.viewMat4.multiplyVec3(this.position);
+
+    let projectVec3 = camera.projectMat4.multiplyVec3(viewVec3);
+
+    projectVec3.multiplyScalar(1 / projectVec3.w);
+
+    projectVec3.x *= -1;
+    //projectVec3.y *= -1;
+
+    // move origin to middle of the screen
+    projectVec3.x += 1;
+    projectVec3.y += 1;
+
+    projectVec3.x *= 0.5 * camera.WIDTH;
+    projectVec3.y *= 0.5 * camera.HEIGHT;
+
+    return projectVec3;
   }
 
   /**

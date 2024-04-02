@@ -18,6 +18,7 @@ class Vec3 {
     this.x = x;
     this.y = y;
     this.z = z;
+    this.w = 1;
   }
 
   /**
@@ -92,22 +93,24 @@ class Vec3 {
 
   /**
    * Multiplies each value x, y, z in the vector by the scalar k.
-   * @param {Vec3}   v1 A vector.
    * @param {number} k  A scalar.
    * @returns {Vec3}    The result of multiplying by k.
    */
-  static multiplyScalar(v1, k) {
-    return new Vec3(v1.x * k, v1.y * k, v1.z * k);
+  multiplyScalar(k) {
+    this.x *= k; 
+    this.y *= k;
+    this.z *= k;
   }
 
   /**
    * Divides each value x, y, z in the vector by the scalar k.
-   * @param {Vec3}   v1 A vector.
    * @param {number} k  A scalar.
    * @returns {Vec3}    The result of dividing by k.
    */
-  static divideScalar(v1, k) {
-    return new Vec3(v1.x / k, v1.y / k, v1.z / k);
+  divideScalar(k) {
+    this.x /= k;
+    this.y /= k;
+    this.z /= k;
   }
 
   /**

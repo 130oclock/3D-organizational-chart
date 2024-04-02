@@ -59,12 +59,16 @@ class Mat4 {
       this.data[i] = other.data[i];
   }
 
-  /** Makes this matrix into an identity matrix by overwriting the data. */
-  identity() {
-    this.data = [ 1, 0, 0, 0,
-                  0, 1, 0, 0,
-                  0, 0, 1, 0,
-                  0, 0, 0, 1 ];
+  /** 
+   * Makes an identity matrix.
+   * @returns {Mat4} An identity matrix.
+   */
+  static identity() {
+    return new Mat4([ 
+      1, 0, 0, 0,
+      0, 1, 0, 0,
+      0, 0, 1, 0,
+      0, 0, 0, 1 ]);
   }
 
   /**
@@ -152,9 +156,9 @@ class Mat4 {
   /** Quickly inverts the matrix. */
   quickInverse() {
     var inverse = 
-      [ this.data[0], this.data[4], this.data[8],  -(this.data[12] * this.data[0] + this.data[13] * this.data[1] + this.data[10] * this.data[2]),
-        this.data[1], this.data[5], this.data[9],  -(this.data[12] * this.data[4] + this.data[13] * this.data[5] + this.data[10] * this.data[6]),
-        this.data[2], this.data[6], this.data[10], -(this.data[12] * this.data[8] + this.data[13] * this.data[9] + this.data[10] * this.data[10]),
+      [ this.data[0], this.data[4], this.data[8],  -(this.data[3] * this.data[0] + this.data[7] * this.data[1] + this.data[11] * this.data[2]),
+        this.data[1], this.data[5], this.data[9],  -(this.data[3] * this.data[4] + this.data[7] * this.data[5] + this.data[11] * this.data[6]),
+        this.data[2], this.data[6], this.data[10], -(this.data[3] * this.data[8] + this.data[7] * this.data[9] + this.data[11] * this.data[10]),
         0,            0,            0,             1 ];
     this.data = inverse;
   }
@@ -165,11 +169,14 @@ class Mat4 {
    * @returns        The resulting vector.
    */
   multiplyVec3(v) {
-    return new Vec3d(
-      (v.x * this.data[0]) + (v.y * this.data[4]) + (v.z * this.data[8])  + (this.data[12]),
-      (v.x * this.data[1]) + (v.y * this.data[5]) + (v.z * this.data[9])  + (this.data[13]),
-      (v.x * this.data[2]) + (v.y * this.data[6]) + (v.z * this.data[10]) + (this.data[14])
+    let vec = new Vec3(
+      (v.x * this.data[0]) + (v.y * this.data[1]) + (v.z * this.data[2])  + (v.w * this.data[3]),
+      (v.x * this.data[4]) + (v.y * this.data[5]) + (v.z * this.data[6])  + (v.w * this.data[7]),
+      (v.x * this.data[8]) + (v.y * this.data[9]) + (v.z * this.data[10]) + (v.w * this.data[11])
     );
+    
+    vec.w = (v.x * this.data[12]) + (v.y * this.data[13]) + (v.z * this.data[14]) + (v.w * this.data[15]);
+    return vec;
   }
 
   /**

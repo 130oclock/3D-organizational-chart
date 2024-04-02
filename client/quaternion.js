@@ -153,7 +153,7 @@ class Quaternion {
    * @param {Vec3} translation The translation.
    * @returns {Mat4}           The resulting matrix.
    */
-  matrix(translation) {
+  matrixTranslate(translation) {
     var sqx = this.x * this.x, sqy = this.y * this.y, sqz = this.z * this.z;
     return new Mat4([
       1 - (2 * sqy) - (2 * sqz),                     (2 * this.x * this.y) - (2 * this.w * this.z), (2 * this.x * this.z) + (2 * this.w * this.y), translation.x,
