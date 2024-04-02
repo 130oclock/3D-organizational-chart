@@ -12,7 +12,7 @@ class Camera {
     this.WIDTH = WIDTH;
     this.HEIGHT = HEIGHT;
 
-    this.position = new Vec3(0, 0, 1); //Vec3.empty();
+    this.position = new Vec3(0, 0, -1); //Vec3.empty();
     this.rotation = Quaternion.empty();
 
     this.viewMat4 = Mat4.empty();
@@ -341,11 +341,15 @@ class DataNode {
 
     let yRotation = 0;
 
+    let visibility = "visible";
+    if (position.z > 1 || position.z < 0) visibility = "hidden";
+
     this.display.setAttribute("style",
      `left: ${position.x}px; 
       top: ${position.y}px; 
       width: ${width}px; 
       height: ${height}px;
+      visibility: ${visibility};
      `);
 
      this.#setTransform(yRotation, 1);
@@ -379,7 +383,7 @@ class DataNode {
     projectVec3.multiplyScalar(1 / projectVec3.w);
 
     projectVec3.x *= -1;
-    //projectVec3.y *= -1;
+    projectVec3.y *= -1;
 
     // move origin to middle of the screen
     projectVec3.x += 1;
