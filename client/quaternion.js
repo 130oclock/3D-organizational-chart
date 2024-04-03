@@ -132,10 +132,11 @@ class Quaternion {
    */
   rotate(axis, angle) {
     this.copy(Quaternion.multiply(Quaternion.localRotation(axis, angle), this));
+    return this;
   }
 
   /**
-   * Computes the matrix equivalent of this quaternion.
+   * Computes the matrix equivalent of this quaternion. Quaternion must be normalized.
    * Implementation from https://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToMatrix/index.htm
    * @returns {Mat4} The resulting matrix.
    */

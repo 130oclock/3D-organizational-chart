@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-		<title>Organization Chart</title>
+		<title>Function Unit Testing</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta charset="UTF-8">
   </head>
@@ -19,7 +19,7 @@
     function TEST(title, test_script, answer) {
       var test_panel = document.createElement("div");
       var output = test_script();
-      test_panel.innerHTML = "TEST: " + title + "<br>" + output;
+      test_panel.innerHTML = "TEST: " + title + "<br>" + output + "<br>" + "Solution: <br>" + answer;
       test_panel.style = "padding: 4px; margin: 4px; outline: solid black 1px;";
       if (output !== answer) {
         test_panel.style.outline = "solid #F07777 4px";
@@ -30,42 +30,42 @@
     }
     
     /**
-    *Vec3 Tests.
+    * Vec3 Tests.
     *
-    * Authors: Aidan Donley, ,Amr Hussein
+    * Authors: Aidan Donley, Amr Hussein
     * @version 1.0.0
     * 
-    *Each tests a seperate function in Vec3
+    * Each tests a seperate function in Vec3
     **/
-    TEST("Vec3 Length", () => {
+    TEST("Vec3 length", () => {
       let v = new Vec3(1, 1, 1);
       return v.length();
     }, Math.sqrt(3));
 
     // Test the Vec3 multiply
-    TEST("Vec3 Multiply", () => {
+    TEST("Vec3 multiplyScalar", () => {
       let v1 = new Vec3(4, 3, -2);
       v1.multiplyScalar(3);
       return v1.print();
     }, "(12 9 -6)");
 
     TEST("Vec3 add", () =>{
-      let v = new Vec3(10, 1147323, 23458);
-      let v2 = new Vec3(4358907,238990832, 7834874378);
-      let v3 = Vec3.add(v,v2)
+      let v1 = new Vec3(10, 1147323, 23458);
+      let v2 = new Vec3(4358907, 238990832, 7834874378);
+      let v3 = Vec3.add(v1, v2)
       return v3.print();
     }, "(4358917 240138155 7834897836)");
 
-    TEST("Vec3 dot", () =>{
+    TEST("Vec3 dotProduct", () =>{
       let v = new Vec3(10, 1147323, 23458);
       let v2 = new Vec3(4358907,238990832, 7834874378);
       let res = Vec3.dotProduct(v,v2);
       return res;
     }, 457990205090930);
 
-    TEST("Vec3 div Scalar", () =>{
+    TEST("Vec3 divideScalar", () =>{
       let v = new Vec3(4358907,238990832, 7834874378);
-      v.divideScalar(2)
+      v.divideScalar(2);
       return v.print();
     }, "(2179453.5 119495416 3917437189)");
 
@@ -84,7 +84,7 @@
       return roundedNumber;
     }, 9.64);
 
-    TEST("Vec3 cross product", () => {
+    TEST("Vec3 crossProduct", () => {
       let v1 = new Vec3(5,5,5);
       let v2 = new Vec3(2,3,9);
       let resVec = Vec3.crossProduct(v1, v2);
@@ -99,14 +99,35 @@
      * Matrix Tests.
      **/
     
-    TEST("mat-4-translation", () =>{
+    TEST("Mat4 makeTranslation", () =>{
       let v = new Vec3(17.38, 10, 11.23);
-      let m = new Mat4();
+      let m = Mat4.empty();
       m.makeTranslation(v);
-      return String(m.data);
-    }, "1,0,0,17.38,0,1,0,10,0,0,1,11.23,0,0,0,1");
+      return m.print(3);
+    }, "[1.000, 0.000, 0.000, 17.380, 0.000, 1.000, 0.000, 10.000, 0.000, 0.000, 1.000, 11.230, 0.000, 0.000, 0.000, 1.000]");
+    
+    TEST("Mat4 makeRotationX", () =>{
+      let m = Mat4.empty();
+      let angle = Math.PI/3;
+      m.makeRotationX(angle);
+      return m.print(3);
+    }, "[1.000, 0.000, 0.000, 0.000, 0.000, 0.500, -0.866, 0.000, 0.000, 0.866, 0.500, 0.000, 0.000, 0.000, 0.000, 1.000]");
 
-    TEST("mat4-multiplyVec3", () =>{
+    TEST("Mat4 makeRotationY", () =>{
+      let m = Mat4.empty();
+      let angle = Math.PI/3;
+      m.makeRotationY(angle);
+      return m.print(3);
+    }, "[0.500, 0.000, 0.866, 0.000, 0.000, 1.000, 0.000, 0.000, -0.866, 0.000, 0.500, 0.000, 0.000, 0.000, 0.000, 1.000]");
+
+    TEST("Mat4 makeRotationZ", () =>{
+      let m = Mat4.empty();
+      let angle = Math.PI/3;
+      m.makeRotationZ(angle);
+      return m.print(3);
+    }, "[0.500, -0.866, 0.000, 0.000, 0.866, 0.500, 0.000, 0.000, 0.000, 0.000, 1.000, 0.000, 0.000, 0.000, 0.000, 1.000]");
+
+    TEST("Mat4 multiplyVec3", () =>{
       let v = new Vec3(12.35, 231, 12);
       let m = new Mat4([10, 12, 34, 124, 
                         35, 124, 213, 123,
@@ -115,7 +136,32 @@
       let res = m.multiplyVec3(v);
 
       return res.print();
-    }, "(18714.5 29451.2 52472.9)");
+    }, "(3427.5 31755.25 25946.6)");
+
+    /**
+     * Quaternion Tests.
+     */
+
+    TEST("Quaternion rotate X", () =>{
+      let q = Quaternion.empty();
+      return q.rotate(new Vec3(1, 0, 0), Math.PI/3).print();
+    }, "(0.8660254037844387 0.49999999999999994 0 0)");
+
+    TEST("Quaternion rotate Y", () =>{
+      let q = Quaternion.empty();
+      return q.rotate(new Vec3(0, 1, 0), Math.PI/3).print();
+    }, "(0.8660254037844387 0 0.49999999999999994 0)");
+
+    TEST("Quaternion rotate Z", () =>{
+      let q = Quaternion.empty();
+      return q.rotate(new Vec3(0, 0, 1), Math.PI/3).print();
+    }, "(0.8660254037844387 0 0 0.49999999999999994)");
+
+    TEST("Quaternion matrix", () =>{
+      let q = Quaternion.empty();
+      let m = q.rotate(new Vec3(0, 0, 1), Math.PI/3).matrix();
+      return m.print(3);
+    }, "[0.500, -0.866, 0.000, 0.000, 0.866, 0.500, 0.000, 0.000, 0.000, 0.000, 1.000, 0.000, 0.000, 0.000, 0.000, 1.000]");
 
   </script>
 </html>

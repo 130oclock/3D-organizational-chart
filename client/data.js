@@ -27,7 +27,7 @@ class Camera {
   }
 
   rotateByMouse(mouseDX, mouseDY) {
-    this.position = Quaternion.rotateAround(this.origin, this.position, this.rotation.up(), mouseDX / 1800 * Math.PI);
+    //this.position = Quaternion.rotateAround(this.origin, this.position, this.rotation.up(), mouseDX / 1800 * Math.PI);
     //console.log(this.position.print());
     // this.rotation.rotate(this.rotation.up(), mouseDX / 1800 * Math.PI);
     this.update();
@@ -42,7 +42,7 @@ class Camera {
 
   update() {
     // look at selected card
-    //this.angleFromCenter = this.getAngle();
+    this.angleFromCenter = this.getAngle();
     //this.rotation = Quaternion.lookAt(this.position, this.origin);
 
     // generate view matrix
