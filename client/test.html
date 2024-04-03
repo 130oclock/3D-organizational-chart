@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
   <head>
@@ -28,7 +29,14 @@
       body.append(test_panel);
     }
     
-    // Test the Vec3 length
+    /**
+    *Vec3 Tests.
+    *
+    * Authors: Aidan Donley, ,Amr Hussein
+    * @version 1.0.0
+    * 
+    *Each tests a seperate function in Vec3
+    **/
     TEST("Vec3 Length", () => {
       let v = new Vec3(1, 1, 1);
       return v.length();
@@ -37,13 +45,77 @@
     // Test the Vec3 multiply
     TEST("Vec3 Multiply", () => {
       let v1 = new Vec3(4, 3, -2);
-      return Vec3.multiply(v1, 3).print();
+      v1.multiplyScalar(3);
+      return v1.print();
     }, "(12 9 -6)");
 
-    // Test the Mat4 print
-    TEST("Mat4 Print", () => {
-      let m4 = Mat4.empty();
-      return m4.print();
-    }, "");
+    TEST("Vec3 add", () =>{
+      let v = new Vec3(10, 1147323, 23458);
+      let v2 = new Vec3(4358907,238990832, 7834874378);
+      let v3 = Vec3.add(v,v2)
+      return v3.print();
+    }, "(4358917 240138155 7834897836)");
+
+    TEST("Vec3 dot", () =>{
+      let v = new Vec3(10, 1147323, 23458);
+      let v2 = new Vec3(4358907,238990832, 7834874378);
+      let res = Vec3.dotProduct(v,v2);
+      return res;
+    }, 457990205090930);
+
+    TEST("Vec3 div Scalar", () =>{
+      let v = new Vec3(4358907,238990832, 7834874378);
+      v.divideScalar(2)
+      return v.print();
+    }, "(2179453.5 119495416 3917437189)");
+
+
+    TEST("Vec3 multiplyScalar", () => {
+      let v = new Vec3(696969, 420420, 69420);
+      v.multiplyScalar(5);
+      return v.print();
+    }, "(3484845 2102100 347100)");
+
+    TEST("Vec3 distance", () => {
+      let v = new Vec3(10, 7, 2);
+      let v1 = new Vec3(5, 9, 10);
+      let res = Vec3.distance(v, v1);
+      let roundedNumber = Math.round(9.643650760992955 * 100) / 100;
+      return roundedNumber;
+    }, 9.64);
+
+    TEST("Vec3 cross product", () => {
+      let v1 = new Vec3(5,5,5);
+      let v2 = new Vec3(2,3,9);
+      let resVec = Vec3.crossProduct(v1, v2);
+      return resVec.print();
+    }, "(30 -35 5)");
+
+    TEST("Vec3 intersectPlane", () => {
+
+    });
+
+    /** 
+     * Matrix Tests.
+     **/
+    
+    TEST("mat-4-translation", () =>{
+      let v = new Vec3(17.38, 10, 11.23);
+      let m = new Mat4();
+      m.makeTranslation(v);
+      return String(m.data);
+    }, "1,0,0,17.38,0,1,0,10,0,0,1,11.23,0,0,0,1");
+
+    TEST("mat4-multiplyVec3", () =>{
+      let v = new Vec3(12.35, 231, 12);
+      let m = new Mat4([10, 12, 34, 124, 
+                        35, 124, 213, 123,
+                        856, 53, 234, 324,
+                        234, 23, 42, 42])
+      let res = m.multiplyVec3(v);
+
+      return res.print();
+    }, "(18714.5 29451.2 52472.9)");
+
   </script>
 </html>
