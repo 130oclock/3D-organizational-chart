@@ -62,7 +62,7 @@ class Quaternion {
    * @returns {Vec3} The forward vector.
    */
   forward() {
-		return new Vec3d(
+		return new Vec3(
       2 * ((this.x * this.z) + (this.w * this.y)), 
       2 * ((this.y * this.z) - (this.w * this.x)), 
       1 - (2 * ((this.x * this.x) + (this.y * this.y)))
@@ -74,7 +74,7 @@ class Quaternion {
    * @returns {Vec3} The up vector.
    */
 	up() {
-    return new Vec3d(
+    return new Vec3(
       2 * ((this.x * this.y) - (this.w * this.z)),
       1 - (2 * ((this.x * this.x) + (this.z * this.z))),
       2 * ((this.y * this.z) + (this.w * this.x))
@@ -86,7 +86,7 @@ class Quaternion {
    * @returns {Vec3} The right vector.
    */
 	right() {
-    return new Vec3d(
+    return new Vec3(
       1 - (2 * ((this.y * this.y) + (this.z * this.z))),
       2 * ((this.x * this.y) + (this.w * this.z)),
       2 * ((this.x * this.z) - (this.w * this.y))
@@ -98,7 +98,7 @@ class Quaternion {
    * @returns {Vec3} The vector part.
    */
 	vector() {
-		return new Vec3d(this.x, this.y, this.z);
+		return new Vec3(this.x, this.y, this.z);
 	}
 
   /**
@@ -111,7 +111,7 @@ class Quaternion {
 
   /** Normalizes this quaternion. */
   normalize() {
-    let magnitude = magnitude();
+    let magnitude = this.magnitude();
     this.w = this.w / magnitude;
     this.x = this.x / magnitude;
     this.y = this.y / magnitude;
@@ -136,6 +136,7 @@ class Quaternion {
 
   /**
    * Computes the matrix equivalent of this quaternion.
+   * Implementation from https://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToMatrix/index.htm
    * @returns {Mat4} The resulting matrix.
    */
   matrix() {
@@ -147,21 +148,6 @@ class Quaternion {
       0,                                             0,                                             0,                                             1
     ]);
   }
-
-  /**
-   * Computes the matrix equivalent of this quaternion along with the provided translation.
-   * @param {Vec3} translation The translation.
-   * @returns {Mat4}           The resulting matrix.
-   */
-  matrixTranslate(translation) {
-    var sqx = this.x * this.x, sqy = this.y * this.y, sqz = this.z * this.z;
-    return new Mat4([
-      1 - (2 * sqy) - (2 * sqz),                     (2 * this.x * this.y) - (2 * this.w * this.z), (2 * this.x * this.z) + (2 * this.w * this.y), translation.x,
-      (2 * this.x * this.y) + (2 * this.w * this.z), 1 - (2 * sqx) - (2 * sqz),                     (2 * this.y * this.z) - (2 * this.w * this.x), translation.y,
-      (2 * this.x * this.z) - (2 * this.w * this.y), (2 * this.y * this.z) + (2 * this.w * this.x), 1 - (2 * sqx) - (2 * sqy),                     translation.z,
-      0,                                             0,                                             0,                                             1
-    ]);
-  }
   
   /**
    * Computes a new quaternion that points from the cameras position to the target.
@@ -170,21 +156,21 @@ class Quaternion {
    * @returns {Quaternion}        The resulting Quaternion
    */
   static lookAt(camera, target) {
-    const UP = new Vec3(0, 0, 1);
+    const FORWARD = new Vec3(0, 0, 1);
     var forward = Vec3.subtract(target, camera).normalize();
-    var dot = Vec3.dotProduct(UP, forward);
+    var dot = Vec3.dotProduct(FORWARD, forward);
   
     // Avoid gimble lock
     if (Math.abs(dot - (-1.0)) < 0.000001) {
       return new Quaternion(Math.PI, 0, 1, 0);
     }
     if (Math.abs(dot - (1.0)) < 0.000001) {
-      return new Quaternion();
+      return Quaternion.empty();
     }
   
     var angle = Math.acos(dot);
-    var axis = Vec3.crossProduct(UP, forward).normalize();
-    return Quaternion.localRotation(axis, angle).normalize();
+    var axis = Vec3.crossProduct(FORWARD, forward).normalize();
+    return Quaternion.localRotation(axis, angle);
   }
 
   /**
@@ -196,8 +182,10 @@ class Quaternion {
    * @returns {Vec3}        The resulting vector.
    */
   static rotateAround(center, point, axis, angle) {
-    var worldMat = Quaternion.localRotation(axis, angle).matrix(center);
-    return worldMat.multiplyVec3(Vec3.subtract(point, center));
+    let relativePosition = Vec3.subtract(point, center);
+    let worldRotation = Quaternion.localRotation(axis, angle);
+    var rotatedPosition = worldRotation.matrix().multiplyVec3(relativePosition);
+    return Vec3.add(rotatedPosition, center);
   }
 
   /**
@@ -225,8 +213,7 @@ class Quaternion {
   
     const DOT_THRESHOLD = 0.9995;
     if (dot > DOT_THRESHOLD) {
-      var result = new Quaternion(w1 + time * (w2 - w1), x1 + time * (x2 - x1), y1 + time * (y2 - y1), z1 + time * (z2 - z1));
-      return result.normalize();
+      return new Quaternion(w1 + time * (w2 - w1), x1 + time * (x2 - x1), y1 + time * (y2 - y1), z1 + time * (z2 - z1)).normalize();
     }
   
     var theta_0 = Math.acos(dot);
@@ -295,12 +282,13 @@ class Quaternion {
    * @returns {Quaternion}       The resulting rotation.
    */
   static localRotation(axis, angle) {
-    var angleHalf = angle / 2;
+    let halfAngle = angle / 2;
+    let sinAngleHalf = Math.sin(halfAngle);
     return new Quaternion(
-      Math.cos(angleHalf),
-      axis.x * Math.sin(angleHalf),
-      axis.y * Math.sin(angleHalf),
-      axis.z * Math.sin(angleHalf)
+      Math.cos(halfAngle),
+      axis.x * sinAngleHalf,
+      axis.y * sinAngleHalf,
+      axis.z * sinAngleHalf
     );
   }
 }

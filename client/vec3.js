@@ -65,10 +65,11 @@ class Vec3 {
 
   /** Normalizes this vector. */
   normalize() {
-    var l = length();
+    var l = this.length();
     this.x = this.x / l;
     this.y = this.y / l;
     this.z = this.z / l;
+    return this;
   }
 
   /**

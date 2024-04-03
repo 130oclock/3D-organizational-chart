@@ -41,7 +41,7 @@ body {
   margin: 0px;
   padding: 8px 12px;
 
-  transition-duration: 200ms;
+  /* transition-duration: 200ms; */
 
   overflow: hidden;
 

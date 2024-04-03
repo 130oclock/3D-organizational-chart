@@ -80,6 +80,7 @@ class Mat4 {
                   0,  Math.cos(angle), Math.sin(angle), 0,
                   0, -Math.sin(angle), Math.cos(angle), 0,
                   0,  0,               0,               1 ];
+    return this;
   }
 
   /**
@@ -91,6 +92,7 @@ class Mat4 {
                    0,               1, 0,               0,
                   -Math.sin(angle), 0, Math.cos(angle), 0,
                    0,               0, 0,               1 ];
+    return this;
   }
 
   /**
@@ -102,6 +104,7 @@ class Mat4 {
                   -Math.sin(angle), Math.cos(angle), 0, 0,
                    0,               0,               1, 0,
                    0,               0,               0, 1 ];
+    return this;
   }
 
   /**
@@ -113,6 +116,7 @@ class Mat4 {
                   0, 1, 0, v.y,
                   0, 0, 1, v.z,
                   0, 0, 0, 1 ];
+    return this;
   }
 
   /**

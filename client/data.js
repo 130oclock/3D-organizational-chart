@@ -9,21 +9,41 @@
 class Camera {
   /** Default constructor of class Camera. */
   constructor(WIDTH, HEIGHT) {
-    this.WIDTH = WIDTH;
-    this.HEIGHT = HEIGHT;
-
     this.position = new Vec3(0, 0, -1); //Vec3.empty();
     this.rotation = Quaternion.empty();
+    this.origin = Vec3.empty();
+    this.angleFromCenter = this.getAngle();
 
-    this.viewMat4 = Mat4.empty();
-    this.projectMat4 = Mat4.empty();
-    this.projectMat4.makeProjection(90, HEIGHT/WIDTH, 0.1, 1000);
+    this.viewMat4 = Mat4.identity();
+    this.projectMat4 = Mat4.identity();
+
+    this.resizeScreen(WIDTH, HEIGHT);
 
     this.update();
   }
 
+  getAngle() {
+    return Math.atan(-(this.origin.x - this.position.x) / -(this.origin.z - this.position.z));
+  }
+
+  rotateByMouse(mouseDX, mouseDY) {
+    this.position = Quaternion.rotateAround(this.origin, this.position, this.rotation.up(), mouseDX / 1800 * Math.PI);
+    //console.log(this.position.print());
+    // this.rotation.rotate(this.rotation.up(), mouseDX / 1800 * Math.PI);
+    this.update();
+  }
+
+  resizeScreen(WIDTH, HEIGHT) {
+    this.WIDTH = WIDTH;
+    this.HEIGHT = HEIGHT;
+
+    this.projectMat4.makeProjection(90, HEIGHT/WIDTH, 0.1, 1000);
+  }
+
   update() {
     // look at selected card
+    //this.angleFromCenter = this.getAngle();
+    //this.rotation = Quaternion.lookAt(this.position, this.origin);
 
     // generate view matrix
     let rotationMat4 = this.rotation.matrix();
@@ -64,14 +84,50 @@ class Chart {
     this.camera = new Camera(this.body.clientWidth, this.body.clientHeight);
   }
 
+  rotateCamera(mouseDX, mouseDY) {
+    this.camera.rotateByMouse(mouseDX, mouseDY);
+    this.draw();
+  }
+
+  resizeScreen() {
+    this.camera.resizeScreen(this.body.clientWidth, this.body.clientHeight);
+    this.draw();
+  }
+
+  /** Calls draw on all nodes in the chart. */
+  draw() {
+    this.loop((node) => {
+      node.draw(this.camera);
+    });
+  }
+
   /** Prints a list of nodes in the chart. */
   print() {
-    for (let i = 0; i < DataNode.collection.length; ++i) {
-      let node = DataNode.collection[i];
-      console.log(node.depth(), node.member.name);
+    this.loop((node) => {
+      console.log(node.height(), node.depth(), node.member.name);
+    });
+  }
+
+  loop(func) {
+    let nodes = [];
+    nodes.push(this.root);
+
+    while (nodes.length > 0) {
+      let node = nodes.shift();
+
+      let cSize = node.children.length;
+      for (let i = 0; i < cSize; ++i) {
+        nodes.push(node.children[i]);
+      }
+      
+      while (node != null) {
+        func(node);
+        node = node.next;
+      }
     }
   }
 
+  // ========================== Data Structure Implementation ===============================
   /**
    * Inserts a new node as a child of the given nodes. The parents given must already exist in the chart.
    * @param {Array<DataNode>} parents The parents of the new node.
@@ -203,7 +259,7 @@ class DataNode {
   constructor(member, chart) {
     this.unique = DataNode.#unique++;
 
-    this.position = new Vec3(0, this.unique / 5, 0); //Vec3.empty();
+    this.position = new Vec3(this.unique, 0, 0); //Vec3.empty();
     this.rotation = Quaternion.empty();
 
     this.chart = chart;
@@ -337,22 +393,20 @@ class DataNode {
     let width = DataNode.#DEF_WIDTH;
     let height = DataNode.#DEF_HEIGHT;
 
-    let position = this.#project(camera);
-
-    let yRotation = 0;
+    let texture = this.#project(camera);
 
     let visibility = "visible";
-    if (position.z > 1 || position.z < 0) visibility = "hidden";
+    if (texture.z > 1 || texture.z < 0) visibility = "hidden";
 
     this.display.setAttribute("style",
-     `left: ${position.x}px; 
-      top: ${position.y}px; 
+     `left: ${texture.x}px; 
+      top: ${texture.y}px; 
       width: ${width}px; 
       height: ${height}px;
       visibility: ${visibility};
      `);
 
-     this.#setTransform(yRotation, 1);
+     this.#setTransform(camera.angleFromCenter, 1);
   }
 
   /**
@@ -376,10 +430,11 @@ class DataNode {
    * @returns {Vec3}        The pixel coordinate of the node.
    */
   #project(camera) {
+    // project
     let viewVec3 = camera.viewMat4.multiplyVec3(this.position);
-
     let projectVec3 = camera.projectMat4.multiplyVec3(viewVec3);
 
+    // scale the values of the projection based on the screen size.
     projectVec3.multiplyScalar(1 / projectVec3.w);
 
     projectVec3.x *= -1;
