@@ -168,16 +168,28 @@ class Mat4 {
    * @param {Vec3} v The vector.
    * @returns        The resulting vector.
    */
+
+  /* note : wrong
   multiplyVec3(v) {
     let vec = new Vec3(
       (v.x * this.data[0]) + (v.y * this.data[1]) + (v.z * this.data[2])  + (v.w * this.data[3]),
       (v.x * this.data[4]) + (v.y * this.data[5]) + (v.z * this.data[6])  + (v.w * this.data[7]),
       (v.x * this.data[8]) + (v.y * this.data[9]) + (v.z * this.data[10]) + (v.w * this.data[11])
     );
-    
     vec.w = (v.x * this.data[12]) + (v.y * this.data[13]) + (v.z * this.data[14]) + (v.w * this.data[15]);
     return vec;
   }
+  */
+  multiplyVec3(v) {
+    let vec = new Vec3(
+      (v.x * this.data[0]) + (v.y * this.data[4]) + (v.z * this.data[8])  + (v.w * this.data[12]),
+      (v.x * this.data[1]) + (v.y * this.data[5]) + (v.z * this.data[9])  + (v.w * this.data[13]),
+      (v.x * this.data[2]) + (v.y * this.data[6]) + (v.z * this.data[10]) + (v.w * this.data[14])
+    );
+    vec.w = (v.x * this.data[3]) + (v.y * this.data[7]) + (v.z * this.data[11]) + (v.w * this.data[15]);
+    return vec;
+  }
+
 
   /**
    * Adds the two matrices together.
