@@ -37,7 +37,8 @@
     // Test the Vec3 multiply
     TEST("Vec3 Multiply", () => {
       let v1 = new Vec3(4, 3, -2);
-      return Vec3.multiply(v1, 3).print();
+      v1.multiplyScalar(3);
+      return v1.print();
     }, "(12 9 -6)");
 
     // Test the Mat4 print
@@ -45,5 +46,27 @@
       let m4 = Mat4.empty();
       return m4.print();
     }, "");
+
+    TEST("Vec3 add", () =>{
+      let v = new Vec3(10, 1147323, 23458);
+      let v2 = new Vec3(4358907,238990832, 7834874378);
+      let v3 = Vec3.add(v,v2)
+      return v3.print();
+    }, "(4358917 240138155 7834897836)");
+
+    TEST("Vec3 dot", () =>{
+      let v = new Vec3(10, 1147323, 23458);
+      let v2 = new Vec3(4358907,238990832, 7834874378);
+      let res = Vec3.dotProduct(v,v2);
+      return res;
+    }, 457990205090930
+    )
+
+    TEST("Vec3 div Scalar", () =>{
+      let v = new Vec3(4358907,238990832, 7834874378);
+      v.divideScalar(2)
+      return v.print();
+    }, "(2179453.5 119495416 3917437189)"
+    )
   </script>
 </html>
