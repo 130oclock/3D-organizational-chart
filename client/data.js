@@ -9,16 +9,18 @@
 class Camera {
   /** Default constructor of class Camera. */
   constructor(WIDTH, HEIGHT) {
-    this.position = new Vec3(0, 0, -1); //Vec3.empty();
+    this.position = new Vec3(0, 0, 10); //Vec3.empty();
     this.rotation = Quaternion.empty();
     this.origin = Vec3.empty();
-    this.angleFromCenter = this.getAngle();
 
-    this.viewMat4 = Mat4.identity();
-    this.projectMat4 = Mat4.identity();
+    this.FAR = 1000; // the maximum distance
+    this.NEAR = 0.1;
+    this.FOV = 90; // degrees
+
+    this.viewMat = Mat4.identity();
+    this.projectMat = Mat4.identity();
 
     this.resizeScreen(WIDTH, HEIGHT);
-
     this.update();
   }
 
@@ -27,9 +29,9 @@ class Camera {
   }
 
   rotateByMouse(mouseDX, mouseDY) {
-    //this.position = Quaternion.rotateAround(this.origin, this.position, this.rotation.up(), mouseDX / 1800 * Math.PI);
+    this.position = Quaternion.rotateAround(this.origin, this.position, this.rotation.up(), mouseDX / 1800 * Math.PI);
     //console.log(this.position.print());
-    // this.rotation.rotate(this.rotation.up(), mouseDX / 1800 * Math.PI);
+    this.rotation.rotate(Vec3.UP, -mouseDX / 1800 * Math.PI);
     this.update();
   }
 
@@ -37,21 +39,21 @@ class Camera {
     this.WIDTH = WIDTH;
     this.HEIGHT = HEIGHT;
 
-    this.projectMat4.makeProjection(90, HEIGHT/WIDTH, 0.1, 1000);
+    this.projectMat.makeProjection(this.FOV, WIDTH, HEIGHT, this.NEAR, this.FAR);
   }
 
   update() {
     // look at selected card
     this.angleFromCenter = this.getAngle();
-    //this.rotation = Quaternion.lookAt(this.position, this.origin);
+    //this.rotation = Quaternion.lookAt(this.position, this.origin).normalize();
+    //console.log("Rot: " + this.rotation.print(), "Pos: " + this.position.print());
 
     // generate view matrix
-    let rotationMat4 = this.rotation.matrix();
-    let translationMat4 = Mat4.empty();
-    translationMat4.makeTranslation(this.position);
-    translationMat4.quickInverse();
+    let rotationMat = this.rotation.normalize().matrix();
+    let translationMat = Mat4.empty().makeTranslation(this.position);
+    translationMat.quickInverse();
 
-    this.viewMat4 = Mat4.multiply(translationMat4, rotationMat4);
+    this.viewMat = Mat4.multiply(rotationMat, translationMat);
   }
 }
 
@@ -66,7 +68,7 @@ class Member {
   }
 
   getHTML() {
-    return `Name: ${this.name}`;
+    return `#: ${this.name}`;
   }
 }
 
@@ -96,19 +98,19 @@ class Chart {
 
   /** Calls draw on all nodes in the chart. */
   draw() {
-    this.loop((node) => {
+    this.forEach((node) => {
       node.draw(this.camera);
     });
   }
 
   /** Prints a list of nodes in the chart. */
   print() {
-    this.loop((node) => {
+    this.forEach((node) => {
       console.log(node.height(), node.depth(), node.member.name);
     });
   }
 
-  loop(func) {
+  forEach(func) {
     let nodes = [];
     nodes.push(this.root);
 
@@ -404,6 +406,7 @@ class DataNode {
       width: ${width}px; 
       height: ${height}px;
       visibility: ${visibility};
+      z-index: ${(camera.FAR * 10) - (texture.z * camera.FAR * 10) | 0};
      `);
 
      this.#setTransform(camera.angleFromCenter, 1);
@@ -431,19 +434,19 @@ class DataNode {
    */
   #project(camera) {
     // project
-    let viewVec3 = camera.viewMat4.multiplyVec3(this.position);
-    let projectVec3 = camera.projectMat4.multiplyVec3(viewVec3);
+    let viewVec3 = camera.viewMat.multiplyVec3(this.position);
+    let projectVec3 = camera.projectMat.multiplyVec3(viewVec3);
 
     // scale the values of the projection based on the screen size.
     projectVec3.multiplyScalar(1 / projectVec3.w);
 
+    // invert horizontal and vertical to match screen space directions
     projectVec3.x *= -1;
     projectVec3.y *= -1;
 
     // move origin to middle of the screen
     projectVec3.x += 1;
     projectVec3.y += 1;
-
     projectVec3.x *= 0.5 * camera.WIDTH;
     projectVec3.y *= 0.5 * camera.HEIGHT;
 

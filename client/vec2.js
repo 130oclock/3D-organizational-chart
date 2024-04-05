@@ -16,6 +16,7 @@ class Vec2 {
   constructor(u, v) {
     this.u = u;
     this.v = v;
+    this.w = 1;
   }
 
   /**
@@ -49,5 +50,6 @@ class Vec2 {
   copy(other) {
     this.u = other.u;
     this.v = other.v;
+    this.w = 1;
   }
 }

@@ -82,10 +82,10 @@ class Quaternion {
 	}
 
   /**
-   * Computes the right vector of this quaternion.
-   * @returns {Vec3} The right vector.
+   * Computes the left vector of this quaternion.
+   * @returns {Vec3} The left vector.
    */
-	right() {
+	left() {
     return new Vec3(
       1 - (2 * ((this.y * this.y) + (this.z * this.z))),
       2 * ((this.x * this.y) + (this.w * this.z)),
@@ -116,6 +116,7 @@ class Quaternion {
     this.x = this.x / magnitude;
     this.y = this.y / magnitude;
     this.z = this.z / magnitude;
+    return this;
   }
 
   /** Converts this quaternion into its conjugate. */
@@ -123,6 +124,7 @@ class Quaternion {
     this.x = -this.x;
     this.y = -this.y;
     this.z = -this.z;
+    return this;
   }
 
   /**
@@ -152,26 +154,27 @@ class Quaternion {
   
   /**
    * Computes a new quaternion that points from the cameras position to the target.
+   * https://stackoverflow.com/questions/12435671/quaternion-lookat-function
    * @param {Vec3}         camera The position of the camera.
    * @param {Vec3}         target The position of the target.
    * @returns {Quaternion}        The resulting Quaternion
    */
   static lookAt(camera, target) {
-    const FORWARD = new Vec3(0, 0, 1);
+    const EPSILON = 0.000001;
     var forward = Vec3.subtract(target, camera).normalize();
-    var dot = Vec3.dotProduct(FORWARD, forward);
+    var dot = Vec3.dotProduct(Vec3.FORWARD, forward);
   
     // Avoid gimble lock
-    if (Math.abs(dot - (-1.0)) < 0.000001) {
+    if (Math.abs(dot - (-1.0)) < EPSILON) {
       return new Quaternion(Math.PI, 0, 1, 0);
     }
-    if (Math.abs(dot - (1.0)) < 0.000001) {
+    if (Math.abs(dot - (1.0)) < EPSILON) {
       return Quaternion.empty();
     }
   
     var angle = Math.acos(dot);
-    var axis = Vec3.crossProduct(FORWARD, forward).normalize();
-    return Quaternion.localRotation(axis, angle);
+    var axis = Vec3.crossProduct(Vec3.FORWARD, forward).normalize();
+    return Quaternion.localRotation(axis, angle).normalize();
   }
 
   /**

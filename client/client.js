@@ -7,11 +7,11 @@
 var chart = new Chart();
 
 // add nodes
-chart.insert([], new Member("Ben"));
-chart.insert([DataNode.collection[0]], new Member("Tom"));
-chart.insert([DataNode.collection[0]], new Member("Mark"));
-let rNode = chart.insert([DataNode.collection[1]], new Member("John"));
-chart.insert([DataNode.collection[2], DataNode.collection[3]], new Member("Tim"));
+chart.insert([], new Member("1"));
+chart.insert([DataNode.collection[0]], new Member("2"));
+chart.insert([DataNode.collection[0]], new Member("3"));
+let rNode = chart.insert([DataNode.collection[1]], new Member("4"));
+chart.insert([DataNode.collection[2], DataNode.collection[3]], new Member("5"));
 
 chart.print();
 

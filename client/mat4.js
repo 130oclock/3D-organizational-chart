@@ -122,17 +122,24 @@ class Mat4 {
 
   /**
    * Makes this matrix into a projection matrix that converts from world space to camera space.
-   * @param {number} fovDegrees  The FOV in degrees.
-   * @param {number} aspectRatio The aspect ratio of the screen.
-   * @param {number} near 
-   * @param {number} far 
+   * This matrix scales x and y with the field-of-view and aspect ratio and scales z by the near and far clipping planes.
+   * https://stackoverflow.com/questions/7604322/clip-matrix-for-3d-perspective-projection
+   * https://www.songho.ca/opengl/gl_projectionmatrix.html
+   * @param {number} fovDegrees The field-of-view in degrees.
+   * @param {number} WIDTH      The width of the screen in pixels.
+   * @param {number} HEIGHT     The height of the screen in pixels.
+   * @param {number} near       The distance of the near clipping plane.
+   * @param {number} far        The distance of the far clipping plane.
    */
-  makeProjection(fovDegrees, aspectRatio, near, far) {
-    var fovRad = 1 / Math.tan(fovDegrees * 0.5 / 180 * Math.PI);
-    this.data = [ aspectRatio * fovRad, 0,      0,                    0,
-                  0,                    fovRad, 0,                    0,
-                  0,                    0,      (far / (far - near)), ((-far * near) / (far - near)),
-                  0,                    0,      1,                    0 ];
+  makeProjection(fovDegrees, WIDTH, HEIGHT, near, far) {
+    // calculates the field-of-view
+    var fovRad = 1.0 / Math.tan(fovDegrees * 0.5 / 180 * Math.PI);
+    var aspectRatio = WIDTH / HEIGHT;
+
+    this.data = [ aspectRatio * fovRad, 0,      0,                              0,
+                  0,                    fovRad, 0,                              0,
+                  0,                    0,      (-(far + near) / (far - near)), (-(2 * far * near) / (far - near)),
+                  0,                    0,      -1,                             0 ];
     return this;
   }
   
@@ -142,7 +149,7 @@ class Mat4 {
    * @param {Vec3} target   The target to point at.
    * @param {Vec3} up       The up direction of the camera. 
    */
-  pointAt(position, target, up) {
+  lookAt(position, target, up) {
     // Calculate new forward direction
     var newForward = Vec3.subtract(target, position).normalize();
   
@@ -150,22 +157,25 @@ class Mat4 {
     var a = Vec3.multiplyScalar(newForward, Vec3.dotProduct(up, newForward));
     var newUp = Vec3.subtract(up, a).normalize();
   
-    // Calculate new right direction
-    var new_right = Vec3.crossProduct(newUp, newForward);
+    // Calculate new left direction
+    var newLeft = Vec3.crossProduct(newUp, newForward);
   
-    this.data = [ new_right.x, newUp.x, newForward.x, position.x,
-                  new_right.y, newUp.y, newForward.y, position.y, 
-                  new_right.z, newUp.z, newForward.y, position.z, 
+    this.data = [ newLeft.x, newUp.x, newForward.x, position.x,
+                  newLeft.y, newUp.y, newForward.y, position.y, 
+                  newLeft.z, newUp.z, newForward.y, position.z, 
                   0,          0,       0,            1 ];
     return this;
   }
   
-  /** Quickly inverts the matrix. */
+  /** 
+   * Quickly inverts the matrix. 
+   * https://www.songho.ca/opengl/gl_camera.html
+  */
   quickInverse() {
     var inverse = 
-      [ this.data[0], this.data[4], this.data[8],  -(this.data[3] * this.data[0] + this.data[7] * this.data[1] + this.data[11] * this.data[2]),
-        this.data[1], this.data[5], this.data[9],  -(this.data[3] * this.data[4] + this.data[7] * this.data[5] + this.data[11] * this.data[6]),
-        this.data[2], this.data[6], this.data[10], -(this.data[3] * this.data[8] + this.data[7] * this.data[9] + this.data[11] * this.data[10]),
+      [ this.data[0], this.data[4], this.data[8],  -(this.data[3] * this.data[0] + this.data[7] * this.data[4] + this.data[11] * this.data[8]),
+        this.data[1], this.data[5], this.data[9],  -(this.data[3] * this.data[1] + this.data[7] * this.data[5] + this.data[11] * this.data[9]),
+        this.data[2], this.data[6], this.data[10], -(this.data[3] * this.data[2] + this.data[7] * this.data[6] + this.data[11] * this.data[10]),
         0,            0,            0,             1 ];
     this.data = inverse;
     return this;
@@ -185,7 +195,6 @@ class Mat4 {
     vec.w = (v.x * this.data[12]) + (v.y * this.data[13]) + (v.z * this.data[14]) + (v.w * this.data[15]);
     return vec;
   }
-
 
   /**
    * Adds the two matrices together.

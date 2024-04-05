@@ -170,3 +170,7 @@ class Vec3 {
     return Vec3.add(lineStart, lineToIntersect);
   }
 }
+
+Vec3.LEFT = new Vec3(1, 0, 0);
+Vec3.UP = new Vec3(0, 1, 0);
+Vec3.FORWARD = new Vec3(0, 0, 1);
