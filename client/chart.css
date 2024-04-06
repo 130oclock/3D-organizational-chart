@@ -25,7 +25,7 @@ body {
   height: 80%;
 
   overflow: hidden;
-	perspective: 400px;
+	perspective: 500px;
 	perspective-origin: center;
   position: relative;
 

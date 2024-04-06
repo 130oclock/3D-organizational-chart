@@ -9,13 +9,15 @@
 class Camera {
   /** Default constructor of class Camera. */
   constructor(WIDTH, HEIGHT) {
-    this.position = new Vec3(0, 0, 10); //Vec3.empty();
+    this.position = new Vec3(0, 0, -10); //Vec3.empty();
     this.rotation = Quaternion.empty();
-    this.origin = Vec3.empty();
+    this.target = new Vec3(0, 0, 0);
+
+    this.diffAngle = 0;
 
     this.FAR = 1000; // the maximum distance
-    this.NEAR = 0.1;
-    this.FOV = 90; // degrees
+    this.NEAR = 0.1; // can't be 0
+    this.FOV = 70; // degrees
 
     this.viewMat = Mat4.identity();
     this.projectMat = Mat4.identity();
@@ -25,13 +27,12 @@ class Camera {
   }
 
   getAngle() {
-    return Math.atan(-(this.origin.x - this.position.x) / -(this.origin.z - this.position.z));
+    this.diffAngle = Math.atan((this.target.x - this.position.x) / (this.target.z - this.position.z));
   }
 
   rotateByMouse(mouseDX, mouseDY) {
-    this.position = Quaternion.rotateAround(this.origin, this.position, this.rotation.up(), mouseDX / 1800 * Math.PI);
-    //console.log(this.position.print());
-    this.rotation.rotate(Vec3.UP, -mouseDX / 1800 * Math.PI);
+    this.position = Quaternion.rotateAround(this.position, this.target, Vec3.UP, mouseDX / 1800 * Math.PI);
+    
     this.update();
   }
 
@@ -43,10 +44,8 @@ class Camera {
   }
 
   update() {
-    // look at selected card
-    this.angleFromCenter = this.getAngle();
-    //this.rotation = Quaternion.lookAt(this.position, this.origin).normalize();
-    //console.log("Rot: " + this.rotation.print(), "Pos: " + this.position.print());
+    this.rotation = Quaternion.lookRotation(this.position, this.target, Vec3.UP);
+    this.getAngle();
 
     // generate view matrix
     let rotationMat = this.rotation.normalize().matrix();
@@ -395,21 +394,21 @@ class DataNode {
     let width = DataNode.#DEF_WIDTH;
     let height = DataNode.#DEF_HEIGHT;
 
-    let texture = this.#project(camera);
+    let screenPoint = this.#project(camera, this.position);
 
     let visibility = "visible";
-    if (texture.z > 1 || texture.z < 0) visibility = "hidden";
+    if (screenPoint.z > 1 || screenPoint.z < 0) visibility = "hidden"; // check if the object is "behind" the screen.
 
     this.display.setAttribute("style",
-     `left: ${texture.x}px; 
-      top: ${texture.y}px; 
+     `left: ${screenPoint.x}px; 
+      top: ${screenPoint.y}px; 
       width: ${width}px; 
       height: ${height}px;
       visibility: ${visibility};
-      z-index: ${(camera.FAR * 10) - (texture.z * camera.FAR * 10) | 0};
+      z-index: ${(camera.FAR * 10) - (screenPoint.z * camera.FAR * 10) | 0};
      `);
 
-     this.#setTransform(camera.angleFromCenter, 1);
+     this.#setTransform(camera.diffAngle, 1);
   }
 
   /**
@@ -432,25 +431,25 @@ class DataNode {
    * @param {Camera} camera The user's camera.
    * @returns {Vec3}        The pixel coordinate of the node.
    */
-  #project(camera) {
+  #project(camera, point) {
     // project
-    let viewVec3 = camera.viewMat.multiplyVec3(this.position);
-    let projectVec3 = camera.projectMat.multiplyVec3(viewVec3);
+    let viewPoint = camera.viewMat.multiplyVec3(point);
+    let projectPoint = camera.projectMat.multiplyVec3(viewPoint);
 
     // scale the values of the projection based on the screen size.
-    projectVec3.multiplyScalar(1 / projectVec3.w);
+    projectPoint.multiplyScalar(1 / projectPoint.w);
 
     // invert horizontal and vertical to match screen space directions
-    projectVec3.x *= -1;
-    projectVec3.y *= -1;
+    projectPoint.x *= -1;
+    projectPoint.y *= -1;
 
     // move origin to middle of the screen
-    projectVec3.x += 1;
-    projectVec3.y += 1;
-    projectVec3.x *= 0.5 * camera.WIDTH;
-    projectVec3.y *= 0.5 * camera.HEIGHT;
+    projectPoint.x += 1;
+    projectPoint.y += 1;
+    projectPoint.x *= 0.5 * camera.WIDTH;
+    projectPoint.y *= 0.5 * camera.HEIGHT;
 
-    return projectVec3;
+    return projectPoint;
   }
 
   /**

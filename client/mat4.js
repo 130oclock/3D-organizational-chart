@@ -123,7 +123,6 @@ class Mat4 {
   /**
    * Makes this matrix into a projection matrix that converts from world space to camera space.
    * This matrix scales x and y with the field-of-view and aspect ratio and scales z by the near and far clipping planes.
-   * https://stackoverflow.com/questions/7604322/clip-matrix-for-3d-perspective-projection
    * https://www.songho.ca/opengl/gl_projectionmatrix.html
    * @param {number} fovDegrees The field-of-view in degrees.
    * @param {number} WIDTH      The width of the screen in pixels.
@@ -145,31 +144,28 @@ class Mat4 {
   
   /**
    * Makes this matrix into one that points at the target from the given position.
-   * @param {Vec3} position The position of the camera.
-   * @param {Vec3} target   The target to point at.
+   * https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/gluLookAt.xml
+   * @param {Vec3} lookFrom The position of the camera.
+   * @param {Vec3} lookTo   The target to point at.
    * @param {Vec3} up       The up direction of the camera. 
    */
-  lookAt(position, target, up) {
+  static lookAt(lookFrom, lookTo, up) {
     // Calculate new forward direction
-    var newForward = Vec3.subtract(target, position).normalize();
-  
-    // Calculate new up direction
-    var a = Vec3.multiplyScalar(newForward, Vec3.dotProduct(up, newForward));
-    var newUp = Vec3.subtract(up, a).normalize();
-  
+    var zAxis = Vec3.subtract(lookTo, lookFrom).normalize();
     // Calculate new left direction
-    var newLeft = Vec3.crossProduct(newUp, newForward);
+    var xAxis = Vec3.crossProduct(zAxis, up).normalize();
+    // Calculate new up direction
+    var yAxis = Vec3.crossProduct(xAxis, zAxis);
   
-    this.data = [ newLeft.x, newUp.x, newForward.x, position.x,
-                  newLeft.y, newUp.y, newForward.y, position.y, 
-                  newLeft.z, newUp.z, newForward.y, position.z, 
-                  0,          0,       0,            1 ];
-    return this;
+    return new Mat4([ 
+      xAxis.x,  xAxis.y,  xAxis.z,  0,
+      yAxis.x,  yAxis.y,  yAxis.z,  0, 
+      -zAxis.x, -zAxis.y, -zAxis.z, 0, 
+      0,        0,        0,        1 ]);
   }
   
   /** 
    * Quickly inverts the matrix. 
-   * https://www.songho.ca/opengl/gl_camera.html
   */
   quickInverse() {
     var inverse = 

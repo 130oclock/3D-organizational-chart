@@ -58,6 +58,20 @@ class Quaternion {
   }
 
   /**
+   * Sets the parameters of this quaternion.
+   * @param {number} w 
+   * @param {number} x 
+   * @param {number} y 
+   * @param {number} z 
+   */
+  set(w, x, y, z) {
+    this.w = w;
+    this.x = x;
+    this.y = y;
+    this.z = z;
+  }
+
+  /**
    * Computes the forward vector of this quaternion.
    * @returns {Vec3} The forward vector.
    */
@@ -151,17 +165,54 @@ class Quaternion {
       0,                                             0,                                             0,                                             1
     ]);
   }
+
+  /**
+   * Creates this quaternion from a rotation matrix.
+   * @param {Mat4}         m The rotation matrix.
+   * @returns {Quaternion}   The quaternion created from the matrix.
+   */
+  fromMatrix(m) {
+    let trace = m.data[0] + m.data[5] + m.data[10];
+    if (trace > 0) {
+      let s = 0.5 / Math.sqrt(trace + 1);
+      this.w = 0.25 / s;
+      this.x = (m.data[9] - m.data[6]) * s;
+      this.y = (m.data[2] - m.data[8]) * s;
+      this.z = (m.data[4] - m.data[1]) * s;
+    } else {
+      if (m.data[0] > m.data[5] && m.data[0] > m.data[10]) {
+        let s = 2 * Math.sqrt(1 + m.data[0] - m.data[5] - m.data[10]);
+        this.w = (m.data[9] - m.data[6]) / s;
+        this.x = 0.25 * s;
+        this.y = (m.data[1] + m.data[4]) / s;
+        this.z = (m.data[2] + m.data[8]) / s;
+      } else if (m.data[5] > m.data[10]) {
+        let s = 2 * Math.sqrt(1 + m.data[5] - m.data[0] - m.data[10]);
+        this.w = (m.data[2] - m.data[8]) / s;
+        this.x = (m.data[1] + m.data[4]) / s;
+        this.y = 0.25 * s;
+        this.z = (m.data[6] + m.data[9]) / s;
+      } else {
+        let s = 2 * Math.sqrt(1 + m.data[10] - m.data[0] - m.data[5]);
+        this.w = (m.data[4] - m.data[1]) / s;
+        this.x = (m.data[2] + m.data[8]) / s;
+        this.y = (m.data[6] + m.data[9]) / s;
+        this.z = 0.25 * s;
+      }
+    }
+    return this.normalize();
+  }
   
   /**
    * Computes a new quaternion that points from the cameras position to the target.
    * https://stackoverflow.com/questions/12435671/quaternion-lookat-function
-   * @param {Vec3}         camera The position of the camera.
-   * @param {Vec3}         target The position of the target.
-   * @returns {Quaternion}        The resulting Quaternion
+   * @param {Vec3}         lookFrom The position of the camera.
+   * @param {Vec3}         lookTo   The position of the target.
+   * @returns {Quaternion}          The resulting Quaternion
    */
-  static lookAt(camera, target) {
+  /* static lookAt(lookFrom, lookTo) {
     const EPSILON = 0.000001;
-    var forward = Vec3.subtract(target, camera).normalize();
+    var forward = Vec3.subtract(lookTo, lookFrom).normalize();
     var dot = Vec3.dotProduct(Vec3.FORWARD, forward);
   
     // Avoid gimble lock
@@ -175,21 +226,49 @@ class Quaternion {
     var angle = Math.acos(dot);
     var axis = Vec3.crossProduct(Vec3.FORWARD, forward).normalize();
     return Quaternion.localRotation(axis, angle).normalize();
+  } */
+
+  /**
+   * Computes a new quaternion that points from the cameras position to the target.
+   * @param {Vec3} lookFrom The position of the camera.
+   * @param {Vec3} lookTo   The position of the target. 
+   * @param {Vec3} up       The world up direction.
+   * @returns {Quaternion}  The rotation.
+   */
+  static lookRotation(lookFrom, lookTo, up) {
+    let lookAtMat = Mat4.lookAt(lookFrom, lookTo, up);
+    return Quaternion.empty().fromMatrix(lookAtMat);
   }
 
   /**
    * Computes the rotation of the point around the center axis by some angle.
-   * @param {Vec3}   center The center of the rotation.
    * @param {Vec3}   point  The point to rotate.
+   * @param {Vec3}   center The center of the rotation.
    * @param {Vec3}   axis   The axis to rotate around.
    * @param {Float}  angle  The angle by which to rotate in radians.
    * @returns {Vec3}        The resulting vector.
    */
-  static rotateAround(center, point, axis, angle) {
+  static rotateAround(point, center, axis, angle) {
     let relativePosition = Vec3.subtract(point, center);
     let worldRotation = Quaternion.localRotation(axis, angle);
     var rotatedPosition = worldRotation.matrix().multiplyVec3(relativePosition);
     return Vec3.add(rotatedPosition, center);
+  }
+
+  /**
+   * Decomposes a rotation into swing and twist.
+   * @param {Quaternion} rotation The original rotation.
+   * @param {Vec3} direction      The axis of decomposition.
+   * @param {Quaternion} swing 
+   * @param {Quaternion} twist 
+   */
+  static swingTwistDecomposition(rotation, direction, swing, twist) {
+    let axis = rotation.vector();
+    let projection = Vec3.project(axis, direction);
+    twist.set(rotation.w, projection.x, projection.y, projection.z);
+    twist.normalize();
+    let inverseTwist = twist.clone().conjugate();
+    swing.copy(Quaternion.multiply(rotation, inverseTwist));
   }
 
   /**

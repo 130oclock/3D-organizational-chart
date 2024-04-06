@@ -101,6 +101,7 @@ class Vec3 {
     this.x *= k; 
     this.y *= k;
     this.z *= k;
+    return this;
   }
 
   /**
@@ -112,6 +113,7 @@ class Vec3 {
     this.x /= k;
     this.y /= k;
     this.z /= k;
+    return this;
   }
 
   /**
@@ -149,6 +151,38 @@ class Vec3 {
       v1.z * v2.x - v1.x * v2.z,
       v1.x * v2.y - v1.y * v2.x
     );
+  }
+
+  /**
+   * Projects a vector onto the normal. 
+   * The vector projection of v1 on v2 is a vector whose magnitude is the scalar projection of v1 on v2 with the same direction as v2.
+   * @param {Vec3} v1 The vector.
+   * @param {Vec3} v2 The normal.
+   * @returns {Vec3}  The projected vector.
+   */
+  static project(v1, v2) {
+    let normal = v2.clone().normalize();
+    let dot = Vec3.dotProduct(v1, normal);
+    return v2.clone().multiplyScalar(dot);
+  }
+
+  /**
+   * Makes tangent orthogonal to normal.
+   * Gram-Schmidt process for 2 vertices.
+   * @param {Vec3} v1 The normal.
+   * @param {Vec3} v2 The tangent.
+   */
+  static orthoNormal(v1, v2) {
+    var n = v1.clone().normalize();
+    var dot = Vec3.dotProduct(v2, n);
+    var projected = n.clone().multiplyScalar(dot);
+    var t = Vec3.subtract(v2, projected).normalize();
+    v1.x = n.x;
+    v1.y = n.y;
+    v1.z = n.z;
+    v2.x = t.x;
+    v2.y = t.y;
+    v2.z = t.z;
   }
 
   /**
