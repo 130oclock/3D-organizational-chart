@@ -9,7 +9,7 @@
 class Camera {
   /** Default constructor of class Camera. */
   constructor(WIDTH, HEIGHT) {
-    this.position = new Vec3(0, 0, -10); //Vec3.empty();
+    this.position = new Vec3(0, 0, -8); //Vec3.empty();
     this.rotation = Quaternion.empty();
     this.target = new Vec3(0, 0, 0);
 
@@ -31,7 +31,7 @@ class Camera {
   }
 
   rotateByMouse(mouseDX, mouseDY) {
-    this.position = Quaternion.rotateAround(this.position, this.target, Vec3.UP, mouseDX / 1800 * Math.PI);
+    this.position = Quaternion.rotateAround(this.position, this.target, Vec3.UP, mouseDX / 900 * Math.PI);
     
     this.update();
   }
@@ -67,20 +67,20 @@ class Member {
   }
 
   getHTML() {
-    return `#: ${this.name}`;
+    return `#${this.name}`;
   }
 }
 
 /** This class handles organizing node objects. */
 class Chart {
-  constructor() {
+  constructor(div) {
     // The root node of the chart.
     this.root = null;
     this.size = 0;
 
     this.body = document.createElement("div");
     this.body.classList.add("chart", "body");
-    document.body.appendChild(this.body);
+    document.getElementById("chart-wrapper").appendChild(this.body);
 
     this.camera = new Camera(this.body.clientWidth, this.body.clientHeight);
   }
@@ -135,9 +135,11 @@ class Chart {
    * @param {Member}          member  The member which the node represents.
    * @returns {DataNode}              The new node.
    */
-  insert(parents, member) {
+  insert(parents, member, position) {
     ++this.size;
     let newNode = new DataNode(member, this);
+    newNode.position.copy(position);
+    newNode.draw(this.camera);
     let pLength = parents.length;
     newNode.parents = parents;
 
@@ -250,7 +252,7 @@ class DataNode {
   static collection = [];
   static #unique = 0;
 
-  static #DEF_WIDTH = 96;
+  static #DEF_WIDTH = 54;
   static #DEF_HEIGHT = 54;
 
   /**
@@ -260,7 +262,7 @@ class DataNode {
   constructor(member, chart) {
     this.unique = DataNode.#unique++;
 
-    this.position = new Vec3(this.unique, 0, 0); //Vec3.empty();
+    this.position = new Vec3(0, 0, 0); //Vec3.empty();
     this.rotation = Quaternion.empty();
 
     this.chart = chart;
@@ -390,11 +392,16 @@ class DataNode {
   }
 
   /** Updates any html elements related to this node. */
-  draw(camera) {
+  draw() {
+    let camera = this.chart.camera;
+
     let width = DataNode.#DEF_WIDTH;
     let height = DataNode.#DEF_HEIGHT;
 
     let screenPoint = this.#project(camera, this.position);
+    let adjusted = this.position.clone();
+    adjusted.y += 1;
+    let refPoint = this.#project(camera, adjusted);
 
     let visibility = "visible";
     if (screenPoint.z > 1 || screenPoint.z < 0) visibility = "hidden"; // check if the object is "behind" the screen.
@@ -408,7 +415,7 @@ class DataNode {
       z-index: ${(camera.FAR * 10) - (screenPoint.z * camera.FAR * 10) | 0};
      `);
 
-     this.#setTransform(camera.diffAngle, 1);
+     this.#setTransform(camera.diffAngle, (screenPoint.y - refPoint.y + 50) / 100);
   }
 
   /**

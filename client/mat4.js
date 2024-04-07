@@ -133,7 +133,7 @@ class Mat4 {
   makeProjection(fovDegrees, WIDTH, HEIGHT, near, far) {
     // calculates the field-of-view
     var fovRad = 1.0 / Math.tan(fovDegrees * 0.5 / 180 * Math.PI);
-    var aspectRatio = WIDTH / HEIGHT;
+    var aspectRatio = HEIGHT / WIDTH;
 
     this.data = [ aspectRatio * fovRad, 0,      0,                              0,
                   0,                    fovRad, 0,                              0,

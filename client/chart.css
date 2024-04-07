@@ -1,38 +1,158 @@
 :root {
-  --color-high: white;
+  --color-high: #F3F6F9;
   --color-main: #F1EDE5;
   --color-dark: #e5e0d5;
   --color-acc: #E7C9F0;
   --color-text: black;
 }
 
+@font-face {
+  font-family: Ankh;
+  src: url(/client/fonts/AnkhSanctuary-PVK0B.ttf);
+}
+
+
 body {
   background-color: var(--color-main);
 
   margin: 0px;
-  padding: 16px;
+  padding: 0px;
+
+  position: relative;
+}
+
+@media only screen and (min-width: 992px) and (max-width: 1200px) {
+  .sidebar {
+    width: 16%;
+  }
+}
+
+.sidebar {
+  background: var(--color-high);
+
+  margin: 0;
+  margin-bottom: 20px;
+  padding-bottom: 50px;
+
+  width: 216px;
+  height: 100vh;
+
+  position: fixed;
+  top: 0px;
+  left: 0px;
+
+  overflow: hidden;
+  overflow-y: auto;
+  box-shadow: 0 0 10px var(--color-dark);
+  transition: .3s;
+  z-index: 99;
+}
+
+.sidebar .title {
+  background: #F0E8E8;
+
+  margin: 0px;
+  padding: 24px;
+  margin-bottom: 20px;
+
+  display: flex !important;
+}
+
+.sidebar ul {
+  margin: 0px;
+  padding: 0px;
+}
+
+.sidebar li {
+  list-style: none;
+  position: relative;
+  margin-left: 0px;
+  display: grid;
+}
+
+.sidebar li a {
+  font-size: 20px;
+  font-weight: 400;
+  transition: .3s;
+  padding: 10px 10px 10px 26px;
+  text-decoration: none;
+  color: var(--color-text);
+}
+
+.sidebar li a:hover {
+  background-color: var(--color-main);
+}
+
+.sidebar li a::after {
+  content: '>';
+  position: absolute;
+  font-weight: 500;
+  opacity: 0;  
+  top: 10px;
+  right: -20px;
+  transition: 0.5s;
+}
+
+.sidebar li a:hover::after {
+  opacity: 1;
+  right: 30px;
+}
+
+.title {
+  font-family: Ankh, Geneva, Tahoma, sans-serif;
+  font-size: 46px;
+  color: var(--color-text);
+}
+
+@media only screen and (min-width: 992px) and (max-width: 1200px) {
+  .main {
+    width: 84%;
+    padding-left: 16%;
+  }
+}
+
+.main {
+  padding-left: 216px;
+  padding-top: 0px !important;
+
+  width: calc(100% - 216px);
+  min-height: 100vh;
+
+  position: relative;
+
+  overflow: hidden;
+  overflow-y: auto;
+}
+
+.main-inner {
+  margin: 0px;
+  padding: 30px;
+
+  min-height: 68vh;
+
+  position: relative;
+  z-index: 22;
 }
 
 .chart.body {
   background-color: var(--color-high);
   border-radius: 8px;
 
-  margin: auto;
+  margin: 0px;
+  padding: 0px;
 
-  min-width: 800px;
-  min-height: 600px;
-  width: 80%;
-  height: 80%;
+  width: 100%;
+  height: 80vh;
 
   overflow: hidden;
 	perspective: 500px;
 	perspective-origin: center;
   position: relative;
 
-  box-shadow: 0px 0px 10px var(--color-acc);
+  box-shadow: 0 2px 10px var(--color-dark);
 }
 
-.chart.member {
+.chart .member {
   background-color: var(--color-high);
   color: var(--color-text);
   border: 2px solid var(--color-acc);
@@ -58,9 +178,13 @@ body {
 	-o-user-select: none;
 	user-select: none;
   
-  box-shadow: inset 0px 0px 10px var(--color-acc);
+  /* box-shadow: inset 0px 0px 10px var(--color-acc); */
 }
 
-.chart.member:hover {
+.chart .member:hover {
+  border-color: black;
+}
+
+.member.active {
   border-color: black;
 }
