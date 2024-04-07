@@ -19,6 +19,8 @@ body {
   padding: 0px;
 
   position: relative;
+
+  color: var(--color-text);
 }
 
 @media only screen and (min-width: 992px) and (max-width: 1200px) {
@@ -90,7 +92,7 @@ body {
   opacity: 0;  
   top: 10px;
   right: -20px;
-  transition: 0.5s;
+  transition: .5s;
 }
 
 .sidebar li a:hover::after {
@@ -126,7 +128,7 @@ body {
 
 .main-inner {
   margin: 0px;
-  padding: 30px;
+  padding: 30px 15px;
 
   min-height: 68vh;
 
@@ -134,34 +136,98 @@ body {
   z-index: 22;
 }
 
-.chart.body {
+.main-footer {
+  margin: 0px;
+  padding: 30px;
+
+  height: 10vh;
+
+  position: relative;
+  z-index: 20;
+}
+
+.container-fluid {
+  width: 100%;
+  padding: 0 !important;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.row {
+  --gap-x: 1.5rem;
+  --gap-y: 30px;
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: calc(var(--gap-y) * -1);
+}
+
+.row>* {
+  max-width: 100%;
+  margin-top: var(--gap-y);
+  padding-left: calc(var(--gap-x) * .5);
+  padding-right: calc(var(--gap-x) * .5);
+}
+
+.col-12 {
+  width: calc(100% - var(--gap-x));
+  flex: 0 0 auto;
+}
+
+.col-8 {
+  width: calc(66.6666666% - var(--gap-x));
+  flex: 0 0 auto;
+}
+
+.col-6 {
+  width: calc(50% - var(--gap-x));
+  flex: 0 0 auto;
+}
+
+.col-4 {
+  width: calc(33.3333333% - var(--gap-x));
+  flex: 0 0 auto;
+}
+
+.col-3 {
+  width: calc(25% - var(--gap-x));
+  flex: 0 0 auto;
+}
+
+.card {
   background-color: var(--color-high);
   border-radius: 8px;
 
   margin: 0px;
   padding: 0px;
 
+  min-height: 10vh;
+
   width: 100%;
+  height: 100%;
+
+  box-shadow: 0 2px 10px var(--color-dark);
+}
+
+
+
+.chart.body {
+  padding: 0px;
   height: 80vh;
 
   overflow: hidden;
 	perspective: 500px;
 	perspective-origin: center;
   position: relative;
-
-  box-shadow: 0 2px 10px var(--color-dark);
 }
 
 .chart .member {
   background-color: var(--color-high);
-  color: var(--color-text);
   border: 2px solid var(--color-acc);
   border-radius: 8px;
 
   margin: 0px;
   padding: 8px 12px;
-
-  /* transition-duration: 200ms; */
 
   overflow: hidden;
 
@@ -177,12 +243,11 @@ body {
 	-moz-user-select: none;
 	-o-user-select: none;
 	user-select: none;
-  
-  /* box-shadow: inset 0px 0px 10px var(--color-acc); */
 }
 
 .chart .member:hover {
-  border-color: black;
+  transition: .2s border;
+  border: dotted black;
 }
 
 .member.active {

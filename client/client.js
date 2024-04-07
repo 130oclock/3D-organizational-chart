@@ -13,6 +13,7 @@ chart.insert([DataNode.collection[0]], new Member("3"), new Vec3(0, -2, 1));
 let rNode = chart.insert([DataNode.collection[1]], new Member("4"), new Vec3(0, -4, 0));
 chart.insert([DataNode.collection[2], DataNode.collection[3]], new Member("5"), new Vec3(2, -4, 0));
 chart.insert([DataNode.collection[0]], new Member("6"), new Vec3(-2, -2, 0));
+chart.insert([DataNode.collection[0]], new Member("7"), new Vec3(-4, -2, 0));
 
 chart.print();
 

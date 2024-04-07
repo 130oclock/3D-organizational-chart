@@ -73,14 +73,18 @@ class Member {
 
 /** This class handles organizing node objects. */
 class Chart {
-  constructor(div) {
+
+  constructor() {
     // The root node of the chart.
     this.root = null;
     this.size = 0;
 
     this.body = document.createElement("div");
-    this.body.classList.add("chart", "body");
+    this.body.classList.add("chart", "body", "card");
     document.getElementById("chart-wrapper").appendChild(this.body);
+
+    this.activeNode = null;
+    this.activeBody = document.getElementById("chart-active");
 
     this.camera = new Camera(this.body.clientWidth, this.body.clientHeight);
   }
@@ -93,6 +97,12 @@ class Chart {
   resizeScreen() {
     this.camera.resizeScreen(this.body.clientWidth, this.body.clientHeight);
     this.draw();
+  }
+
+  loadActive() {
+    if (this.activeNode == null) return;
+
+    this.activeBody.innerHTML = this.activeNode.member.getHTML();
   }
 
   /** Calls draw on all nodes in the chart. */
@@ -157,7 +167,7 @@ class Chart {
 
       // if there is another node with the same parents
       // add the new node as a neighbor.
-      if (newNode.parentsMatch(otherNode)) {
+      if (newNode.matchParents(otherNode)) {
         this.addNeighbor(otherNode, newNode);
         return newNode;
       }
@@ -222,7 +232,7 @@ class Chart {
         return node;
 
       // the first neighbor in this neighborhood will be the first child.
-      if (node.parentsMatch(otherNode)) {
+      if (node.matchParents(otherNode)) {
         return otherNode;
       }
     }
@@ -277,7 +287,22 @@ class DataNode {
     this.member = member;
     this.display = document.createElement("div");
     this.display.classList.add("chart", "member");
+    this.display.dataset.unique = this.unique;
     this.display.innerHTML = member.getHTML();
+
+    this.display.addEventListener("click", () => {
+      let chart = this.chart;
+      let display = this.display;
+
+      if (chart.active != null && chart.active.unique != this.unique) {
+        chart.active.display.classList.remove("active");
+      }
+
+      display.classList.toggle("active");
+      chart.active = this;
+
+      chart.loadActive();
+    });
 
     this.chart.body.append(this.display);
 
@@ -351,7 +376,7 @@ class DataNode {
    * @param {DataNode}  other The other node.
    * @returns {boolean}       True if the parents match, otherwise false.
    */
-  parentsMatch(other) {
+  matchParents(other) {
     if (this.parents.length !== other.parents.length) return false;
     let length = this.parents.length;
     for (let i = 0; i < length; ++i)
@@ -398,24 +423,32 @@ class DataNode {
     let width = DataNode.#DEF_WIDTH;
     let height = DataNode.#DEF_HEIGHT;
 
-    let screenPoint = this.#project(camera, this.position);
-    let adjusted = this.position.clone();
-    adjusted.y += 1;
-    let refPoint = this.#project(camera, adjusted);
+    let lower = this.position.clone();
+    lower.y -= 1;
+    let lowerScreen = this.#project(camera, lower);
+    let upper = this.position.clone();
+    upper.y += 1;
+    let upperScreen = this.#project(camera, upper);
+    
+    let centerScreen = new Vec3(
+      (lowerScreen.x + upperScreen.x) / 2,
+      (lowerScreen.y + upperScreen.y) / 2,
+      (lowerScreen.z + upperScreen.z) / 2,
+    );
 
     let visibility = "visible";
-    if (screenPoint.z > 1 || screenPoint.z < 0) visibility = "hidden"; // check if the object is "behind" the screen.
+    if (centerScreen.z > 1 || centerScreen.z < 0) visibility = "hidden"; // check if the object is "behind" the screen.
 
     this.display.setAttribute("style",
-     `left: ${screenPoint.x}px; 
-      top: ${screenPoint.y}px; 
+     `left: ${centerScreen.x}px; 
+      top: ${centerScreen.y}px; 
       width: ${width}px; 
       height: ${height}px;
       visibility: ${visibility};
-      z-index: ${(camera.FAR * 10) - (screenPoint.z * camera.FAR * 10) | 0};
+      z-index: ${(camera.FAR * 10) - (centerScreen.z * camera.FAR * 10) | 0};
      `);
 
-     this.#setTransform(camera.diffAngle, (screenPoint.y - refPoint.y + 50) / 100);
+     this.#setTransform(camera.diffAngle, (lowerScreen.y - upperScreen.y) / 100);
   }
 
   /**
