@@ -69,6 +69,10 @@ class Member {
   getHTML() {
     return `#${this.name}`;
   }
+
+  getTable() {
+    return `#${this.name}`;
+  }
 }
 
 /** This class handles organizing node objects. */
@@ -80,11 +84,11 @@ class Chart {
     this.size = 0;
 
     this.body = document.createElement("div");
-    this.body.classList.add("chart", "body", "card");
+    this.body.classList.add("chart", "body");
     document.getElementById("chart-wrapper").appendChild(this.body);
 
     this.activeNode = null;
-    this.activeBody = document.getElementById("chart-active");
+    this.activeNodeDisplay = document.getElementById("chart-active");
 
     this.camera = new Camera(this.body.clientWidth, this.body.clientHeight);
   }
@@ -100,9 +104,9 @@ class Chart {
   }
 
   loadActive() {
-    if (this.activeNode == null) return;
-
-    this.activeBody.innerHTML = this.activeNode.member.getHTML();
+    if (this.activeNode != null) {
+      this.activeNodeDisplay.innerHTML = this.activeNode.member.getTable();
+    }
   }
 
   /** Calls draw on all nodes in the chart. */
@@ -294,12 +298,12 @@ class DataNode {
       let chart = this.chart;
       let display = this.display;
 
-      if (chart.active != null && chart.active.unique != this.unique) {
-        chart.active.display.classList.remove("active");
+      if (chart.activeNode != null && chart.activeNode.unique != this.unique) {
+        chart.activeNode.display.classList.remove("active");
       }
 
       display.classList.toggle("active");
-      chart.active = this;
+      chart.activeNode = this;
 
       chart.loadActive();
     });

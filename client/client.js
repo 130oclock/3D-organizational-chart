@@ -15,8 +15,6 @@ chart.insert([DataNode.collection[2], DataNode.collection[3]], new Member("5"), 
 chart.insert([DataNode.collection[0]], new Member("6"), new Vec3(-2, -2, 0));
 chart.insert([DataNode.collection[0]], new Member("7"), new Vec3(-4, -2, 0));
 
-chart.print();
-
 function resize() {
   chart.resizeScreen();
 }
