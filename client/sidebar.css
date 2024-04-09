@@ -13,6 +13,7 @@
   --color-high: #F3F6F9;
   --color-main: #F1EDE5;
   --color-dark: #e5e0d5;
+  --color-acc: #F0E8E8;
   --color-text: black;
   background: var(--color-high);
 
@@ -35,7 +36,7 @@
 }
 
 .sidebar .title {
-  background: #F0E8E8;
+  background: var(--color-acc);
 
   margin: 0px;
   padding: 24px;
@@ -47,6 +48,10 @@
 .sidebar ul {
   margin: 0px;
   padding: 0px;
+}
+
+.sidebar ul li:nth-child(even) a {
+  background-color: var(--color-off-high);
 }
 
 .sidebar li {
@@ -66,7 +71,7 @@
 }
 
 .sidebar li a:hover {
-  background-color: var(--color-main);
+  background-color: var(--color-main) !important;
 }
 
 .sidebar li a::after {

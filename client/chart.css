@@ -2,7 +2,7 @@
   --color-high: #F3F6F9;
   --color-main: #F1EDE5;
   --color-dark: #e5e0d5;
-  --color-acc: #E7C9F0;
+  --color-acc: #F0E8E8;
   --color-text: black;
   padding: 0px;
   height: 80vh;
@@ -11,21 +11,36 @@
 	perspective: 500px;
 	perspective-origin: center;
   position: relative;
+  z-index: 10;
+}
+
+.chart.axis {
+  background: none;
+  margin: 0px;
+  padding: 0px;
+  overflow: hidden;
+  width: 100px;
+  height: 100px;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  z-index: 12;
 }
 
 .chart .member {
   background-color: var(--color-high);
-  border: 2px solid var(--color-acc);
+  border: 2px solid var(--color-dark);
   border-radius: 8px;
 
   margin: 0px;
-  padding: 8px 8px;
+  padding: 6px 4px 12px 4px;
   font-size: 1rem;
 
   overflow: hidden;
 
 	position: absolute;
 	transform-origin: center;
+  text-align: center;
 
 	-webkit-transform: translate3d(-50%, -50%, 0);
 	-moz-transform: translate3d(-50%, -50%, 0);
@@ -40,9 +55,17 @@
 
 .chart .member:hover {
   transition: .2s box-shadow;
-  box-shadow: 0 0 10px #BBB;
+  box-shadow: 0 0 10px var(--color-dark);
 }
 
 .member.active {
   border-color: black;
+}
+
+.avatar {
+  vertical-align: middle;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-bottom: 4px;
 }

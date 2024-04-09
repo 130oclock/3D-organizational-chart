@@ -1,5 +1,5 @@
 /**
- * This file handles data structures.
+ * This file handles data structures and graphics.
  * @author Aidan Donley, Andy He, Amr Hussein
  * @version 1.0.0
  */
@@ -9,9 +9,9 @@
 class Camera {
   /** Default constructor of class Camera. */
   constructor(WIDTH, HEIGHT) {
-    this.position = new Vec3(0, 0, -8); //Vec3.empty();
+    this.position = new Vec3(4, -1, -6); //Vec3.empty();
     this.rotation = Quaternion.empty();
-    this.target = new Vec3(0, 0, 0);
+    this.target = new Vec3(0, -1, 0);
 
     this.diffAngle = 0;
 
@@ -56,22 +56,43 @@ class Camera {
   }
 }
 
+class Line {
+  #start;
+  #end;
+
+  constructor(start, end) {
+    this.#start = start;
+    this.#end = end;
+
+    this.draw();
+  }
+
+  draw() {
+    // create an SVG
+
+  }
+}
+
 /** This class represents a single member of the organization. */
 class Member {
   /**
    * Default constructor of class Member.
+   * @param {number} id 
    * @param {String} name 
+   * @param {String} title
    */
-  constructor(name) {
+  constructor(id, name, title) {
+    this.id = id;
     this.name = name;
+    this.title = title;
   }
 
   getHTML() {
-    return `#${this.name}`;
+    return `<img src="/client/images/avatar.png" alt="Avatar" class="avatar"><br><span>${this.name}</span>`;
   }
 
   getTable() {
-    return `#${this.name}`;
+    return `<table class=""><tr><td style="width: 30%">Name</td><td>${this.name}</td></tr><tr><td>Title</td><td>${this.title}</td></tr><tr><td>ID</td><td>${this.id}</td></tr></table>`;
   }
 }
 
@@ -86,6 +107,10 @@ class Chart {
     this.body = document.createElement("div");
     this.body.classList.add("chart", "body");
     document.getElementById("chart-wrapper").appendChild(this.body);
+
+    this.axisDisplay = document.createElement("div");
+    this.axisDisplay.classList.add("chart", "axis");
+    document.getElementById("chart-wrapper").appendChild(this.axisDisplay);
 
     this.activeNode = null;
     this.activeNodeDisplay = document.getElementById("chart-active");
@@ -449,7 +474,7 @@ class DataNode {
       width: ${width}px; 
       height: ${height}px;
       visibility: ${visibility};
-      z-index: ${(camera.FAR * 10) - (centerScreen.z * camera.FAR * 10) | 0};
+      z-index: ${((camera.FAR * 10) - (centerScreen.z * camera.FAR * 10) | 0) + 50};
      `);
 
      this.#setTransform(camera.diffAngle, (lowerScreen.y - upperScreen.y) / 100);

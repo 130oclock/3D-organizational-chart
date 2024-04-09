@@ -1,8 +1,9 @@
 :root {
   --color-high: #F3F6F9;
+  --color-off-high: #E8EBEE;
   --color-main: #F1EDE5;
   --color-dark: #e5e0d5;
-  --color-acc: #E7C9F0;
+  --color-acc: #F0E8E8;
   --color-text: black;
 }
 
@@ -121,8 +122,53 @@ body {
   height: 100%;
 
   box-shadow: 0 2px 10px var(--color-dark);
+
+  position: relative;
 }
 
 .card>div {
-  padding: 20px 30px;
+  padding: 20px 20px;
+}
+
+
+
+table {
+  border-top: 2px solid var(--color-off-high);
+  border-bottom: 2px solid var(--color-off-high);
+
+  margin: 0px;
+  padding: 0px;
+
+  width: 100%;
+
+  position: relative;
+  table-layout: fixed;
+}
+
+table th, table td {
+  border: none;
+
+  padding: 6px 10px;
+  
+  text-align: left;
+  font-size: 1rem;
+  transition: .3s;
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+table td:first-child {
+  border-radius: 8px 0 0 8px;
+}
+
+table td:last-child {
+  border-radius: 0 8px 8px 0;
+}
+
+table tr {
+  background-color: var(--color-high);
+}
+
+table tr:nth-child(even) {
+  background-color: var(--color-off-high);
 }
