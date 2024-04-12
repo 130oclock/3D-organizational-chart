@@ -8,6 +8,8 @@ This project aims to create a an organization chart in 3 dimensions to allow the
 
 To handle the 3D graphics, we have implemented vectors, matrices, and quaternions. All of the graphics are displayed using HTML elements and CSS styling.
 
+![Image of the website](DemoImage.png "Website")
+
 ## Features
 The main attraction of this project is that the camera can be moved around by dragging with the mouse to view the chart from alternative angles. The camera can zoom in and out to focus on different scopes of the organization.
 
