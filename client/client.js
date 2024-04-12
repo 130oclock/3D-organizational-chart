@@ -7,7 +7,7 @@
 var chart = new Chart();
 
 // add nodes
-chart.insert([], new Member(1948, "Mary", "CEO"), new Vec3(0, 0, 0));
+chart.insert([], new Member(1748, "Mary", "CEO"), new Vec3(0, 0, 0));
 chart.insert([DataNode.collection[0]], new Member(2109, "James", "Vice President"), new Vec3(0, -2, 0));
 chart.insert([DataNode.collection[0]], new Member(3977, "Robert", "General Manager"), new Vec3(0, -2, 1));
 let rNode = chart.insert([DataNode.collection[1]], new Member(4226, "Jennifer", "Office Manager"), new Vec3(0, -4, 0));

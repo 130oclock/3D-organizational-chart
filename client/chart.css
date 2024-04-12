@@ -1,3 +1,7 @@
+#chart-wrapper {
+  padding: 0px !important;
+}
+
 .chart.body {
   --color-high: #F3F6F9;
   --color-main: #F1EDE5;
@@ -5,7 +9,8 @@
   --color-acc: #F0E8E8;
   --color-text: black;
   padding: 0px;
-  height: 80vh;
+  margin: 0px;
+  height: 75vh;
 
   overflow: hidden;
 	perspective: 500px;
@@ -22,7 +27,7 @@
   width: 100px;
   height: 100px;
   position: absolute;
-  top: 0px;
+  top: calc(44px + 1em);
   right: 0px;
   z-index: 12;
 }

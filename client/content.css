@@ -127,7 +127,12 @@ body {
 }
 
 .card>div {
-  padding: 20px 20px;
+  padding: 12px 20px;
+}
+
+.card-header {
+  border-bottom: 2px solid var(--color-off-high);
+  display: grid;
 }
 
 

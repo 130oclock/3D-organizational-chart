@@ -9,9 +9,9 @@
 class Camera {
   /** Default constructor of class Camera. */
   constructor(WIDTH, HEIGHT) {
-    this.position = new Vec3(4, -1, -6); //Vec3.empty();
+    this.position = new Vec3(4, -2, -6); //Vec3.empty();
     this.rotation = Quaternion.empty();
-    this.target = new Vec3(0, -1, 0);
+    this.target = new Vec3(0, -2, 0);
 
     this.diffAngle = 0;
 
